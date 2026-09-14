@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>QuantiCool — BESS Outreach Tracker & Commercial Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#000b1e",
+            "primary-container": "#142236",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#7c8aa2",
+            "secondary": "#00696e",
+            "secondary-container": "#98f1f7",
+            "on-secondary": "#ffffff",
+            "on-secondary-container": "#007075",
+            "secondary-fixed": "#98f1f7",
+            "secondary-fixed-dim": "#7cd4db",
+            "tertiary": "#000924",
+            "tertiary-container": "#001e52",
+            "tertiary-fixed": "#dae2ff",
+            "tertiary-fixed-dim": "#b1c5ff",
+            "on-tertiary-fixed-variant": "#244487",
+            "surface": "#f8f9ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e6eeff",
+            "surface-container-high": "#dce9ff",
+            "surface-container-highest": "#d5e3fc",
+            "surface-bright": "#f8f9ff",
+            "surface-dim": "#ccdbf3",
+            "surface-tint": "#515f76",
+            "background": "#f8f9ff",
+            "on-surface": "#0d1c2e",
+            "on-surface-variant": "#44474d",
+            "outline": "#75777d",
+            "outline-variant": "#c5c6cd",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6",
+            "on-error": "#ffffff",
+            "on-error-container": "#93000a"
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-background font-sans text-on-surface antialiased">
+
+  <!-- TOP OPERATIONAL UTILITY BAR (TWO-TIER INDUSTRIAL HEADER) -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-800 shadow-[0_4px_20px_rgba(0,11,30,0.4)]">
+    
+    <!-- TIER 1: Branding, Live Connection Telemetry & Quick Actions -->
+    <div class="h-14 w-full px-4 md:px-6 flex items-center justify-between gap-3 bg-slate-900">
+      
+      <!-- Brand Logo & System Identification -->
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="bg-white px-2 py-0.5 rounded-lg shadow-sm border border-slate-200 flex items-center shrink-0">
+          <img src="assets/logo_cropped_white.png" alt="Savita QuantiCool" class="h-8 w-auto object-contain" />
+        </div>
+        <div class="hidden sm:flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-400/40 shadow-sm flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> BESS CORE
+            </span>
+            <span class="text-xs font-semibold text-white tracking-wide">BESS Market Intelligence</span>
+          </div>
+          <span class="text-[10px] text-slate-300 hidden xl:inline">Outreach Tracker • Dielectric Immersion &amp; DLC Thermal Architecture</span>
+        </div>
+      </div>
+
+      <!-- Center: Global Search & Live Connected Telemetry Badge -->
+      <div class="flex items-center justify-center gap-3 flex-1 px-2">
+        <div class="relative w-64 lg:w-80">
+          <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-cyan-400 pointer-events-none">search</span>
+          <input id="globalCompanySearch" class="w-full h-8 pl-8 pr-3 rounded-full bg-slate-950/80 border border-slate-700/80 hover:border-cyan-500/50 focus:border-cyan-400 text-slate-100 text-xs placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition-all shadow-inner" placeholder="Search any company across dashboard..." type="search" />
+        </div>
+        <div class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 border border-cyan-500/50 text-cyan-300 text-xs font-medium shadow-[0_0_15px_rgba(6,182,212,0.18)] shrink-0" title="Connected to live Excel workbook">
+          <span class="relative flex h-2 w-2 shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+          </span>
+          <span id="syncStatusBadge" class="font-mono text-[11px] truncate tracking-tight">Live Connected • BESS_Company_Contacts_Updated1.xlsx</span>
+        </div>
+      </div>
+
+      <!-- Right: Hardware Scope & Action Buttons -->
+      <div class="flex items-center gap-2 shrink-0">
+        <div class="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800/90 border border-slate-700 text-[11px]">
+          <span class="material-symbols-outlined text-[15px] text-teal-400">domain</span>
+          <span class="text-slate-300 font-semibold" id="hardwareScopeCount">59 BESS Accounts</span>
+        </div>
+        
+        <!-- Proactive Agenda Radar Button -->
+        <button id="openAgendaBtn" title="Open Today's Action Agenda & Follow-Up Radar" class="relative h-8 px-3 rounded-md bg-gradient-to-r from-amber-600/30 to-orange-600/30 hover:from-amber-600/40 hover:to-orange-600/40 text-amber-300 border border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.25)] transition-all flex items-center gap-1.5 text-xs font-bold">
+          <span class="material-symbols-outlined text-[17px] text-amber-400 animate-pulse">notifications_active</span>
+          <span class="hidden md:inline">Today's Agenda</span>
+          <span id="agendaBadgeCount" class="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black">0</span>
+        </button>
+        
+        <button id="topSyncBtn" title="Sync newly added rows from source reference sheets" class="h-8 px-2.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-500 transition-all flex items-center gap-1.5 text-xs font-semibold shadow-sm">
+          <span class="material-symbols-outlined text-[16px] text-cyan-400">sync</span>
+          <span class="hidden lg:inline">Sync Sheets</span>
+        </button>
+        
+        <button id="openExportBtn" class="h-8 px-3 rounded-md bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white border border-blue-400/40 shadow-sm transition-all flex items-center gap-1.5 text-xs font-semibold">
+          <span class="material-symbols-outlined text-[16px] text-blue-200">download</span>
+          <span class="hidden sm:inline">Export for Management</span>
+          <span class="sm:hidden">Export</span>
+        </button>
+
+        <button id="openAddBtn" class="add-account-btn h-8 px-3 rounded-md bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border border-emerald-400/40 shadow-[0_2px_10px_rgba(16,185,129,0.3)] transition-all flex items-center gap-1.5 text-xs font-bold" title="Add New Account to Database">
+          <span class="material-symbols-outlined text-[17px]">person_add</span>
+          <span>+ Add New Account</span>
+        </button>
+
+        <!-- User Profile Avatar -->
+        <div class="flex items-center gap-2 pl-1.5 border-l border-slate-700/80">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-sm ring-1 ring-white/20">
+            AV
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TIER 2: Workspace Navigation Ribbon (Vibrant, spacious, single-line tabs) -->
+    <div class="h-11 w-full px-4 md:px-6 flex items-center justify-between border-t border-slate-800 bg-slate-950/90 backdrop-blur-md">
+      <nav class="flex items-center gap-2 text-xs overflow-x-auto no-scrollbar py-1" id="mainNav">
+        <button type="button" data-tab="tab-companies" class="nav-tab active px-3.5 py-1.5 rounded-md font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all text-cyan-300 bg-cyan-950/80 border border-cyan-500/50 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
+          <span class="material-symbols-outlined text-[17px] text-cyan-400">factory</span>
+          <span>Companies &amp; Pipeline</span>
+        </button>
+
+        <button type="button" data-tab="tab-agenda" class="nav-tab px-3.5 py-1.5 rounded-md font-medium flex items-center gap-1.5 whitespace-nowrap transition-all text-slate-300 hover:text-amber-300 hover:bg-slate-800/60 border border-transparent hover:border-amber-500/30">
+          <span class="material-symbols-outlined text-[17px] text-amber-400 animate-pulse">notifications_active</span>
+          <span>Daily Action Agenda</span>
+          <span id="tabAgendaNavBadge" class="px-1.5 py-0.2 rounded-full text-[9px] font-black uppercase bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 tracking-wider shadow-sm">3</span>
+        </button>
+
+        <button type="button" data-tab="tab-export-mfrs" class="nav-tab px-3.5 py-1.5 rounded-md font-medium flex items-center gap-1.5 whitespace-nowrap transition-all text-slate-300 hover:text-sky-300 hover:bg-slate-800/60 border border-transparent hover:border-sky-500/30">
+          <span class="material-symbols-outlined text-[17px] text-sky-400">travel_explore</span>
+          <span>Export Manufacturers</span>
+          <span id="exportMfrNavBadge" class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-gradient-to-r from-sky-500 to-blue-500 text-white tracking-wider shadow-sm">9</span>
+        </button>
+        
+        <button type="button" data-tab="tab-kanban" class="nav-tab px-3.5 py-1.5 rounded-md font-medium flex items-center gap-1.5 whitespace-nowrap transition-all text-slate-300 hover:text-amber-300 hover:bg-slate-800/60 border border-transparent hover:border-amber-500/30">
+          <span class="material-symbols-outlined text-[17px] text-amber-400">view_kanban</span>
+          <span>Outreach Pipeline Board</span>
+        </button>
+        
+        <button type="button" data-tab="tab-monthly-demand" class="nav-tab px-3.5 py-1.5 rounded-md font-medium flex items-center gap-1.5 whitespace-nowrap transition-all text-slate-300 hover:text-emerald-300 hover:bg-slate-800/60 border border-transparent hover:border-emerald-500/30">
+          <span class="material-symbols-outlined text-[17px] text-emerald-400">water_drop</span>
+          <span>Monthly Coolant Demand</span>
+          <span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 tracking-wider shadow-sm">NEW</span>
+        </button>
+        
+        <button type="button" data-tab="tab-analytics" class="nav-tab px-3.5 py-1.5 rounded-md font-medium flex items-center gap-1.5 whitespace-nowrap transition-all text-slate-300 hover:text-purple-300 hover:bg-slate-800/60 border border-transparent hover:border-purple-500/30">
+          <span class="material-symbols-outlined text-[17px] text-purple-400">device_thermostat</span>
+          <span>Market Intel &amp; Cooling Analytics</span>
+        </button>
+        
+        <button type="button" data-tab="tab-reports" class="nav-tab px-3.5 py-1.5 rounded-md font-medium flex items-center gap-1.5 whitespace-nowrap transition-all text-slate-300 hover:text-rose-300 hover:bg-slate-800/60 border border-transparent hover:border-rose-500/30">
+          <span class="material-symbols-outlined text-[17px] text-rose-400">insights</span>
+          <span>Management Reports</span>
+        </button>
+      </nav>
+
+      <!-- Right Indicator: Fluid Color Chips -->
+      <div class="hidden xl:flex items-center gap-2.5 text-xs shrink-0">
+        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Fluids:</span>
+        <span class="px-2.5 py-0.5 rounded-full bg-teal-950/70 border border-teal-500/40 text-teal-300 font-semibold text-[11px] flex items-center gap-1.5 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)]"></span> QuantiCool-Immersion
+        </span>
+        <span class="px-2.5 py-0.5 rounded-full bg-indigo-950/70 border border-indigo-500/40 text-indigo-300 font-semibold text-[11px] flex items-center gap-1.5 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.8)]"></span> QuantiCool-DLC
+        </span>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- LEFT NAVIGATION ICON STRIP (FIXED ASIDE) -->
+  <aside class="fixed left-0 top-[100px] bottom-0 w-16 bg-slate-900 z-30 flex flex-col items-center py-4 justify-between border-r border-slate-800 shadow-sm">
+    <nav class="flex flex-col items-center gap-2.5 w-full px-2" id="sidebarNav">
+      <button type="button" data-tab="tab-companies" class="sidebar-btn active w-10 h-10 rounded-lg flex items-center justify-center transition-all bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-[0_0_14px_rgba(6,182,212,0.4)]" title="Companies &amp; Pipeline">
+        <span class="material-symbols-outlined text-[20px]">factory</span>
+      </button>
+      <button type="button" data-tab="tab-agenda" class="sidebar-btn w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-amber-300 transition-all" title="Daily Commercial Action Agenda">
+        <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+      </button>
+      <button type="button" data-tab="tab-export-mfrs" class="sidebar-btn w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-sky-300 transition-all" title="Export Manufacturers (Non-India Base)">
+        <span class="material-symbols-outlined text-[20px]">travel_explore</span>
+      </button>
+      <button type="button" data-tab="tab-kanban" class="sidebar-btn w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-amber-300 transition-all" title="Outreach Pipeline Board">
+        <span class="material-symbols-outlined text-[20px]">view_kanban</span>
+      </button>
+      <button type="button" data-tab="tab-monthly-demand" class="sidebar-btn w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-emerald-300 transition-all" title="Monthly Requirement of Coolant">
+        <span class="material-symbols-outlined text-[20px]">water_drop</span>
+      </button>
+      <button type="button" data-tab="tab-analytics" class="sidebar-btn w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-purple-300 transition-all" title="Market Intel &amp; Cooling Analytics">
+        <span class="material-symbols-outlined text-[20px]">device_thermostat</span>
+      </button>
+      <button type="button" data-tab="tab-reports" class="sidebar-btn w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-rose-300 transition-all" title="Management Reports">
+        <span class="material-symbols-outlined text-[20px]">insights</span>
+      </button>
+    </nav>
+    <div class="flex flex-col items-center gap-2 w-full px-2">
+      <button type="button" id="openSpecModalBtn" class="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-teal-300 transition-all" title="QuantiCool Dielectric Specs Matrix">
+        <span class="material-symbols-outlined text-[20px]">science</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <div class="pl-16">
+    <main class="w-full min-h-screen pt-[100px] bg-background pb-12">
+      
+      <!-- ============================================================= -->
+      <!-- TAB 1: COMPANIES & PIPELINE (PRIMARY HIGH-DENSITY VIEW)       -->
+      <!-- ============================================================= -->
+      <section id="tab-companies" class="workspace-tab block w-full px-4 md:px-6 py-4 space-y-4">
+        
+        <!-- TOP TELEMETRY METRIC RIBBON (4 KPI TILES) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="kpiRibbon">
+          <!-- Card 1: Companies Tracked -->
+          <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col justify-between border border-outline-variant/30">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Companies Tracked</span>
+              <span class="p-1 rounded bg-surface-container text-secondary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">domain</span>
+              </span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span class="text-2xl text-on-surface font-bold tracking-tight tabular-nums" id="statTotalCount">59</span>
+              <span class="text-xs text-secondary font-semibold">100% Coverage</span>
+            </div>
+            <div class="flex items-center gap-1 text-on-surface-variant text-[11px] tabular-nums" id="statTypeBreakdown">
+              <span>--</span>
+            </div>
+          </div>
+
+          <!-- Card 2: High Priority Uncontacted -->
+          <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col justify-between border border-outline-variant/30">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-error uppercase tracking-wider flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>
+                High Priority Uncontacted
+              </span>
+              <span class="p-1 rounded bg-error-container/60 text-error flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">priority_high</span>
+              </span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span class="text-2xl text-error font-bold tracking-tight tabular-nums" id="statHighOpenCount">0</span>
+              <span class="text-[11px] text-on-error-container bg-error-container px-1.5 py-0.5 rounded font-medium">Urgent Intro</span>
+            </div>
+            <div class="flex items-center gap-1 text-on-surface-variant text-[11px] truncate" id="statHighOpenSub">
+              <span>Direct Fluid Targets</span>
+            </div>
+          </div>
+
+          <!-- Card 3: In Active Discussion -->
+          <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col justify-between border border-outline-variant/30">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">In Active Pipeline</span>
+              <span class="p-1 rounded bg-surface-container-high text-secondary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">hourglass_top</span>
+              </span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span class="text-2xl text-on-surface font-bold tracking-tight tabular-nums" id="statActiveCount">0</span>
+              <span class="text-xs text-secondary font-semibold" id="statActiveRatio">In dialogue</span>
+            </div>
+            <div class="flex items-center gap-1 text-on-surface-variant text-[11px]" id="statActiveSub">
+              <span>Trials &amp; Evaluations</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Won / Specified -->
+          <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col justify-between border border-outline-variant/30">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Won / Specified</span>
+              <span class="p-1 rounded bg-secondary-container text-on-secondary-fixed-variant flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">verified</span>
+              </span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span class="text-2xl text-secondary font-bold tracking-tight tabular-nums" id="statWonCount">0</span>
+              <span class="text-xs text-secondary font-semibold" id="statWonConversion">0% Conversion</span>
+            </div>
+            <div class="flex items-center gap-1 text-on-surface-variant text-[11px] truncate">
+              <span class="font-semibold text-on-surface" id="statFluidDemand">Dielectric Mandate</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIPELINE STATUS STRIP / THERMAL ARCHITECTURE MIX GAUGE -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border border-outline-variant/30">
+          <div class="flex items-center gap-3 shrink-0">
+            <span class="text-[11px] uppercase font-bold text-on-surface-variant tracking-wider">Thermal Architecture Mix:</span>
+            <div class="flex items-center gap-2 text-xs flex-wrap" id="thermalMixLabels">
+              <span class="inline-flex items-center gap-1 text-secondary font-semibold">
+                <span class="w-2 h-2 rounded-full bg-secondary"></span>Immersion (<span id="pctImmersion">0%</span>)
+              </span>
+              <span class="inline-flex items-center gap-1 text-on-tertiary-fixed-variant font-semibold">
+                <span class="w-2 h-2 rounded-full bg-on-tertiary-fixed-variant"></span>Cold Plate (<span id="pctColdPlate">0%</span>)
+              </span>
+              <span class="inline-flex items-center gap-1 text-amber-700 font-semibold">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>Liquid Unspec (<span id="pctLiquidUnspec">0%</span>)
+              </span>
+              <span class="inline-flex items-center gap-1 text-outline font-medium">
+                <span class="w-2 h-2 rounded-full bg-outline-variant"></span>Air/Other (<span id="pctAir">0%</span>)
+              </span>
+            </div>
+          </div>
+          <div class="w-full md:w-96 h-2 bg-surface-container rounded-full flex overflow-hidden">
+            <div id="barImmersion" class="bg-secondary h-full transition-all duration-300" style="width: 0%;" title="Immersion"></div>
+            <div id="barColdPlate" class="bg-on-tertiary-fixed-variant h-full transition-all duration-300" style="width: 0%;" title="Cold Plate"></div>
+            <div id="barLiquidUnspec" class="bg-amber-500 h-full transition-all duration-300" style="width: 0%;" title="Liquid Unspecified"></div>
+            <div id="barAir" class="bg-outline-variant h-full transition-all duration-300" style="width: 100%;" title="Air Cooled / Other"></div>
+          </div>
+        </div>
+
+        <!-- MONTHLY COOLANT REQUIREMENT TELEMETRY BAR -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border border-outline-variant/30">
+          <div class="flex items-center gap-3 shrink-0">
+            <div class="w-8 h-8 rounded-lg bg-teal-50 text-secondary flex items-center justify-center border border-secondary/20">
+              <span class="material-symbols-outlined text-[18px]">water_drop</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[11px] uppercase font-bold text-on-surface-variant tracking-wider">Total Monthly Coolant Requirement:</span>
+                <span class="text-sm font-bold text-secondary tabular-nums" id="dashboardMonthlyLiters">0 Liters / month</span>
+                <span class="text-xs text-on-surface-variant font-medium" id="dashboardMonthlyTons">(~0 MT)</span>
+              </div>
+              <div class="text-[11px] text-on-surface-variant" id="dashboardMonthlyBreakdown">
+                QuantiCool-Immersion: 0 L • QuantiCool-DLC: 0 L • Annualized Run-Rate: 0 L/yr
+              </div>
+            </div>
+          </div>
+          <button type="button" id="jumpToMonthlyDemandBtn" class="px-3 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-secondary hover:text-on-surface text-xs font-semibold flex items-center gap-1 transition-colors">
+            <span>View Monthly Allocation Schedule</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </button>
+        </div>
+
+        <!-- SEARCH & MULTI-PARAM FILTER TRAY -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm space-y-2 border border-outline-variant/30">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+            
+            <!-- Search Input -->
+            <div class="relative flex-1 min-w-[260px]">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+              <input id="searchInput" class="w-full h-8 pl-8 pr-3 rounded bg-surface-container-low text-on-surface text-xs placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary transition-all" placeholder="Search by company, location, technology, notes, contact..." type="text" />
+            </div>
+
+            <!-- Filter Dropdowns -->
+            <div class="flex flex-wrap items-center gap-1.5">
+              <!-- Type -->
+              <div class="relative">
+                <select id="typeFilter" class="h-8 pl-2 pr-7 rounded bg-surface-container text-on-surface text-xs appearance-none cursor-pointer focus:outline-none focus:bg-surface-container-high transition-colors">
+                  <option value="">Type: All Types</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-1.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">expand_more</span>
+              </div>
+
+              <!-- Status -->
+              <div class="relative">
+                <select id="statusFilter" class="h-8 pl-2 pr-7 rounded bg-surface-container text-on-surface text-xs appearance-none cursor-pointer focus:outline-none focus:bg-surface-container-high transition-colors">
+                  <option value="">Status: All Statuses</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-1.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">expand_more</span>
+              </div>
+
+              <!-- Priority -->
+              <div class="relative">
+                <select id="priorityFilter" class="h-8 pl-2 pr-7 rounded bg-surface-container text-on-surface text-xs appearance-none cursor-pointer focus:outline-none focus:bg-surface-container-high transition-colors">
+                  <option value="">Priority: All</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-1.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">expand_more</span>
+              </div>
+
+              <!-- Cooling -->
+              <div class="relative">
+                <select id="coolingFilter" class="h-8 pl-2 pr-7 rounded bg-surface-container text-on-surface text-xs appearance-none cursor-pointer focus:outline-none focus:bg-surface-container-high transition-colors">
+                  <option value="">Cooling: All Types</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-1.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">expand_more</span>
+              </div>
+            </div>
+
+            <!-- Utility Quick Toggles -->
+            <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
+              <button id="tableAddAccountBtn" class="add-account-btn h-8 px-3 rounded bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_2px_8px_rgba(16,185,129,0.3)] transition-all" type="button" title="Add New Account to Database">
+                <span class="material-symbols-outlined text-[17px]">person_add</span>
+                <span>+ Add New Account</span>
+              </button>
+              <button id="quickImmersionBtn" class="h-8 px-2.5 rounded bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed-dim transition-colors text-xs font-semibold flex items-center gap-1 shadow-sm" type="button">
+                <span class="material-symbols-outlined text-[16px]">filter_alt</span>
+                <span>Immersion Leads</span>
+              </button>
+              <button id="quickExportMfrBtn" class="h-8 px-2.5 rounded bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 transition-colors text-xs font-semibold flex items-center gap-1 shadow-sm" type="button" title="Filter to Export Manufacturers Only">
+                <span class="material-symbols-outlined text-[16px] text-sky-700">travel_explore</span>
+                <span>Export Mfrs</span>
+              </button>
+              <button id="quickResetBtn" class="h-8 px-2 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors text-xs flex items-center gap-1" title="Reset Filters" type="button">
+                <span class="material-symbols-outlined text-[16px]">refresh</span>
+                <span>Reset</span>
+              </button>
+              <div class="h-5 w-px bg-outline-variant mx-0.5"></div>
+              <button id="switchTableViewBtn" class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center shadow-sm" title="Table View" type="button">
+                <span class="material-symbols-outlined text-[16px]">table_rows</span>
+              </button>
+              <button id="switchKanbanViewBtn" class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant flex items-center justify-center transition-colors" title="Kanban Matrix" type="button">
+                <span class="material-symbols-outlined text-[16px]">view_week</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Scopes & Count Row -->
+          <div class="flex items-center gap-2 text-xs pt-1 overflow-x-auto" id="activeScopesRow">
+            <span class="text-on-surface-variant uppercase font-semibold text-[10px]">Active Scopes:</span>
+            <div id="activeScopeTags" class="flex items-center gap-1.5 flex-wrap"></div>
+            <span class="text-on-surface-variant ml-auto text-xs whitespace-nowrap font-medium" id="resultCount">Showing 0 accounts</span>
+          </div>
+
+          <!-- Bulk Selection Action Bar -->
+          <div id="bulkActionBar" class="hidden flex items-center justify-between p-2 rounded bg-secondary-container text-on-secondary-container text-xs font-semibold">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+              <span id="selectedRowsCount">0 companies selected</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="bulkExportBtn" class="px-2.5 py-1 rounded bg-secondary text-on-secondary hover:bg-secondary/90 transition-colors flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-outlined text-[14px]">download</span> Export Selected
+              </button>
+              <button type="button" id="bulkClearBtn" class="px-2 py-1 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors">
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DENSE INDUSTRIAL DATA TABLE -->
+        <div class="bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden flex flex-col border border-outline-variant/30">
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-left min-w-[1020px]" id="companyTable">
+              <thead>
+                <tr class="bg-surface-container-low text-[11px] font-semibold text-on-surface-variant tracking-wider uppercase select-none border-b border-outline-variant/40">
+                  <th class="w-8 pl-3 py-2 text-center" scope="col">
+                    <input id="selectAllCheckbox" class="w-3.5 h-3.5 rounded bg-surface-container text-secondary focus:ring-0 cursor-pointer align-middle" type="checkbox" />
+                  </th>
+                  <th class="w-6 py-2 px-1 text-center" scope="col"></th>
+                  <th class="py-2 px-3 font-semibold cursor-pointer hover:text-on-surface" data-sort="company" scope="col">
+                    <div class="flex items-center gap-1">
+                      <span>Company / Division</span>
+                      <span class="material-symbols-outlined text-[14px] sort-icon" id="sortIcon_company">unfold_more</span>
+                    </div>
+                  </th>
+                  <th class="py-2 px-3 font-semibold cursor-pointer hover:text-on-surface" data-sort="type" scope="col">
+                    <div class="flex items-center gap-1">
+                      <span>Type</span>
+                      <span class="material-symbols-outlined text-[14px] sort-icon" id="sortIcon_type">unfold_more</span>
+                    </div>
+                  </th>
+                  <th class="py-2 px-3 font-semibold cursor-pointer hover:text-on-surface" data-sort="location" scope="col">
+                    <div class="flex items-center gap-1">
+                      <span>Location</span>
+                      <span class="material-symbols-outlined text-[14px] sort-icon" id="sortIcon_location">unfold_more</span>
+                    </div>
+                  </th>
+                  <th class="py-2 px-3 font-semibold cursor-pointer hover:text-on-surface" data-sort="liquidCooling" scope="col">
+                    <div class="flex items-center gap-1">
+                      <span>Cooling Architecture</span>
+                      <span class="material-symbols-outlined text-[14px] sort-icon" id="sortIcon_liquidCooling">unfold_more</span>
+                    </div>
+                  </th>
+                  <th class="py-2 px-3 font-semibold cursor-pointer hover:text-on-surface whitespace-nowrap" data-sort="contactPerson" scope="col">
+                    <div class="flex items-center gap-1">
+                      <span>Key Contact &amp; Mobile</span>
+                      <span class="material-symbols-outlined text-[14px] sort-icon" id="sortIcon_contactPerson">unfold_more</span>
+                    </div>
+                  </th>
+                  <th class="py-2 px-2 text-center font-semibold cursor-pointer hover:text-on-surface whitespace-nowrap" data-sort="priority" scope="col">
+                    <div class="flex items-center justify-center gap-1">
+                      <span>Priority</span>
+                      <span class="material-symbols-outlined text-[14px] sort-icon" id="sortIcon_priority">unfold_more</span>
+                    </div>
+                  </th>
+                  <th class="py-2 px-3 font-semibold cursor-pointer hover:text-on-surface" data-sort="status" scope="col">
+                    <div class="flex items-center gap-1">
+                      <span>Commercial Status</span>
+                      <span class="material-symbols-outlined text-[14px] sort-icon" id="sortIcon_status">unfold_more</span>
+                    </div>
+                  </th>
+                  <th class="py-2 px-3 font-semibold cursor-pointer hover:text-on-surface" data-sort="nextActionDate" scope="col">
+                    <div class="flex items-center gap-1">
+                      <span>Next Scheduled Action</span>
+                      <span class="material-symbols-outlined text-[14px] sort-icon" id="sortIcon_nextActionDate">unfold_more</span>
+                    </div>
+                  </th>
+                  <th class="py-2 px-3 text-right pr-3 font-semibold" scope="col">Manage</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody" class="text-xs text-on-surface"></tbody>
+            </table>
+          </div>
+          <div id="emptyState" class="hidden p-8 text-center text-on-surface-variant">
+            <span class="material-symbols-outlined text-4xl text-outline mb-2">search_off</span>
+            <p class="text-sm font-medium">No companies match your current search and filter criteria.</p>
+            <button type="button" id="emptyResetBtn" class="mt-2 text-xs text-secondary underline font-semibold">Reset all filters</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================= -->
+      <!-- TAB 2: DAILY ACTION AGENDA & COMMERCIAL COMMAND CENTER        -->
+      <!-- ============================================================= -->
+      <section id="tab-agenda" class="workspace-tab hidden w-full px-4 md:px-6 py-4 space-y-4">
+        
+        <!-- Header Banner -->
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 shrink-0">
+              <span class="material-symbols-outlined text-[24px]">notifications_active</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                <h2 class="text-base font-bold text-on-surface">Daily Commercial Action Command Center</h2>
+                <span id="agendaTotalActionBadge" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold">0 Active Actions</span>
+                <span id="agendaTabDateStamp" class="px-2.5 py-0.5 rounded-full bg-cyan-50 text-cyan-900 border border-cyan-300 font-mono text-[10px]">Mon, Sep 14, 2026</span>
+              </div>
+              <p class="text-xs text-on-surface-variant">Proactive follow-up schedule, overdue milestones, and high-priority accounts needing outreach</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="relative w-56 md:w-64">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[17px] text-on-surface-variant pointer-events-none">search</span>
+              <input id="agendaSearchInput" class="w-full h-8 pl-8 pr-3 rounded bg-surface-container-low text-on-surface text-xs placeholder:text-outline border border-outline-variant/40 focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-amber-500 transition-all" placeholder="Filter agenda tasks..." type="text" />
+            </div>
+
+            <button type="button" id="openDailyBriefingModalBtn" class="h-8 px-3 rounded bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all">
+              <span class="material-symbols-outlined text-[16px]">campaign</span>
+              <span>Morning Briefing</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Top KPI Tiles for Agenda -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <!-- KPI 1: Due Today & Overdue -->
+          <div class="p-3.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-error tracking-wider block">Due Today &amp; Overdue</span>
+              <div class="text-2xl font-bold text-error tabular-nums my-1" id="countOverdueTodayKpi">0</div>
+              <span class="text-[10px] text-error font-medium">Immediate attention needed</span>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-error-container/40 text-error flex items-center justify-center border border-error/20">
+              <span class="material-symbols-outlined text-[22px]">alarm</span>
+            </div>
+          </div>
+
+          <!-- KPI 2: Upcoming Milestones -->
+          <div class="p-3.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-secondary tracking-wider block">Next 14 Days</span>
+              <div class="text-2xl font-bold text-secondary tabular-nums my-1" id="countUpcomingKpi">0</div>
+              <span class="text-[10px] text-on-surface-variant font-medium">Scheduled follow-up pipeline</span>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-teal-50 text-secondary flex items-center justify-center border border-secondary/20">
+              <span class="material-symbols-outlined text-[22px]">event_upcoming</span>
+            </div>
+          </div>
+
+          <!-- KPI 3: High-Priority Radar -->
+          <div class="p-3.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-amber-800 tracking-wider block">High-Priority Radar</span>
+              <div class="text-2xl font-bold text-amber-800 tabular-nums my-1" id="countUrgentKpi">0</div>
+              <span class="text-[10px] text-on-surface-variant font-medium">Awaiting follow-up date</span>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200">
+              <span class="material-symbols-outlined text-[22px]">radar</span>
+            </div>
+          </div>
+
+          <!-- KPI 4: Verified Contacts Ready -->
+          <div class="p-3.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider block">Direct WhatsApp Ready</span>
+              <div class="text-2xl font-bold text-emerald-800 tabular-nums my-1" id="countWhatsAppReadyKpi">0</div>
+              <span class="text-[10px] text-on-surface-variant font-medium">With valid mobile number</span>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200">
+              <span class="material-symbols-outlined text-[22px]">chat</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Priority Swimlanes Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          
+          <!-- Swimlane 1: Due Today & Overdue -->
+          <div class="flex flex-col rounded-lg bg-surface-container-lowest border border-red-200 p-3.5 space-y-3 shadow-sm">
+            <div class="flex items-center justify-between pb-2 border-b border-red-100">
+              <span class="text-xs font-bold text-red-700 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                🚨 Due Today &amp; Overdue (<span id="countOverdueToday">0</span>)
+              </span>
+              <span class="text-[10px] text-red-700 font-bold uppercase bg-red-50 px-2 py-0.5 rounded border border-red-200">Immediate Attention</span>
+            </div>
+            <div id="listOverdueToday" class="space-y-2.5 max-h-[560px] overflow-y-auto pr-1">
+              <!-- Dynamically populated cards -->
+            </div>
+          </div>
+
+          <!-- Swimlane 2: Upcoming Milestones (Next 14 Days) -->
+          <div class="flex flex-col rounded-lg bg-surface-container-lowest border border-teal-200 p-3.5 space-y-3 shadow-sm">
+            <div class="flex items-center justify-between pb-2 border-b border-teal-100">
+              <span class="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px] text-teal-600">calendar_month</span>
+                📅 Upcoming Milestones (<span id="countUpcoming">0</span>)
+              </span>
+              <span class="text-[10px] text-teal-800 font-bold uppercase bg-teal-50 px-2 py-0.5 rounded border border-teal-200">Next 14 Days</span>
+            </div>
+            <div id="listUpcoming" class="space-y-2.5 max-h-[560px] overflow-y-auto pr-1">
+              <!-- Dynamically populated cards -->
+            </div>
+          </div>
+
+          <!-- Swimlane 3: High Priority Unscheduled Radar -->
+          <div class="flex flex-col rounded-lg bg-surface-container-lowest border border-amber-200 p-3.5 space-y-3 shadow-sm">
+            <div class="flex items-center justify-between pb-2 border-b border-amber-100">
+              <span class="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px] text-amber-600">radar</span>
+                ⚡ High Priority Radar (<span id="countUrgentUnscheduled">0</span>)
+              </span>
+              <span class="text-[10px] text-amber-800 font-bold uppercase bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Needs Action Date</span>
+            </div>
+            <div id="listUrgentUnscheduled" class="space-y-2.5 max-h-[560px] overflow-y-auto pr-1">
+              <!-- Dynamically populated cards -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Master Chronological Schedule Table -->
+        <div class="bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-outline-variant/30 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-outline-variant/30">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-600 text-[20px]">table_rows</span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-on-surface">Chronological Follow-Up Master Schedule</h3>
+              <span id="agendaScheduleTableCount" class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant text-[10px] font-mono font-semibold">0 Accounts</span>
+            </div>
+            <span class="text-[11px] text-on-surface-variant">All actions write live to Excel BESS_Company_Contacts_Updated1.xlsx</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-on-surface">
+              <thead class="bg-surface-container-low text-on-surface-variant text-[11px] uppercase tracking-wider border-b border-outline-variant/30">
+                <tr>
+                  <th class="py-2.5 px-3">Date / Status</th>
+                  <th class="py-2.5 px-3">Company</th>
+                  <th class="py-2.5 px-3">Pipeline Stage</th>
+                  <th class="py-2.5 px-3">Scheduled Action Milestone</th>
+                  <th class="py-2.5 px-3">Stakeholder Contact</th>
+                  <th class="py-2.5 px-3 text-right">Direct Execution</th>
+                </tr>
+              </thead>
+              <tbody id="agendaScheduleTableBody" class="divide-y divide-outline-variant/20">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================= -->
+      <!-- TAB: EXPORT MANUFACTURERS (NON-INDIA MANUFACTURING BASE)      -->
+      <!-- ============================================================= -->
+      <section id="tab-export-mfrs" class="workspace-tab hidden w-full px-4 md:px-6 py-4 space-y-4">
+        
+        <!-- Header Banner -->
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="material-symbols-outlined text-sky-500 text-[22px]">travel_explore</span>
+              <h2 class="text-base font-bold text-on-surface">Export Manufacturers — Non-India Manufacturing Base</h2>
+              <span class="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px] font-bold uppercase tracking-wider border border-sky-300">Overseas OEMs</span>
+            </div>
+            <p class="text-xs text-on-surface-variant">
+              International BESS, Battery Cell &amp; Hybrid Inverter OEMs exporting into the Indian energy storage market. Separated from domestic Indian manufacturers to target port-of-entry coolant fill, local O&amp;M fluid supply, and direct qualification with their Indian EPC and project developer partners.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button id="exportTabAddAccountBtn" class="add-account-btn h-8 px-3 rounded bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all" type="button" title="Add New Export Account">
+              <span class="material-symbols-outlined text-[17px]">person_add</span>
+              <span>+ Add Export OEM</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Strategic Overview KPI Ribbon -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <!-- Card 1: Account Count -->
+          <div class="p-3.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Tracked Export OEMs</span>
+              <span class="material-symbols-outlined text-[18px] text-sky-500">public</span>
+            </div>
+            <div class="mt-1 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-on-surface tabular-nums" id="exportTotalCount">9</span>
+              <span class="text-xs text-sky-600 font-semibold">Global Accounts</span>
+            </div>
+            <p class="text-[10px] text-on-surface-variant mt-1 leading-tight">Hithium, CATL, Saft, REPT, Deye, Lux Power, Samsung C&amp;T &amp; more.</p>
+          </div>
+
+          <!-- Card 2: Geographical Hubs -->
+          <div class="p-3.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Geographic Origins</span>
+              <span class="material-symbols-outlined text-[18px] text-teal-600">flag</span>
+            </div>
+            <div class="mt-1 flex items-center gap-2 flex-wrap text-xs font-bold text-on-surface">
+              <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">🇨🇳 China (6)</span>
+              <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">🇫🇷 France (1)</span>
+              <span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-800 border border-indigo-200">🇰🇷 S. Korea (1)</span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">🇭🇺 Europe (1)</span>
+            </div>
+            <p class="text-[10px] text-on-surface-variant mt-1 leading-tight">China dominates utility cells &amp; containerized imports.</p>
+          </div>
+
+          <!-- Card 3: Port-of-Entry Triage -->
+          <div class="p-3.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fluid Triage Strategy</span>
+              <span class="material-symbols-outlined text-[18px] text-amber-500">local_shipping</span>
+            </div>
+            <div class="mt-1 flex items-baseline gap-1.5">
+              <span class="text-sm font-bold text-amber-900">Dry-Ship vs Pre-Fill</span>
+            </div>
+            <p class="text-[10px] text-on-surface-variant mt-1 leading-tight">Imported containers ship empty for maritime freight compliance; local QuantiCool filling upon port arrival in India.</p>
+          </div>
+
+          <!-- Card 4: Savita QuantiCool Synergy -->
+          <div class="p-3.5 rounded-lg bg-teal-50/70 border border-teal-200/60 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-teal-900 uppercase tracking-wider">Savita Advantage</span>
+              <span class="material-symbols-outlined text-[18px] text-secondary">verified</span>
+            </div>
+            <div class="mt-1 text-xs font-bold text-teal-950">Indian BoM &amp; Maintenance Support</div>
+            <p class="text-[10px] text-teal-800 mt-1 leading-tight">Immediate fluid replenishment and dielectric warranty support across Indian utility installations.</p>
+          </div>
+        </div>
+
+        <!-- Search & Filter Tray for Export OEMs -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm space-y-2 border border-outline-variant/30">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+            <div class="relative flex-1 min-w-[260px]">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+              <input id="exportMfrSearchInput" class="w-full h-8 pl-8 pr-3 rounded bg-surface-container-low text-on-surface text-xs placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-sky-500 transition-all" placeholder="Search export company, origin country, contact, product..." type="search" />
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <select id="exportMfrCoolingFilter" class="h-8 px-2 rounded bg-surface-container text-on-surface text-xs focus:outline-none">
+                <option value="">All Cooling Architectures</option>
+                <option value="Immersion Cooled">Immersion Cooled</option>
+                <option value="DLC / Cold Plate">DLC / Cold Plate</option>
+                <option value="Liquid Cooled - Type Not Specified">Liquid Unspecified</option>
+              </select>
+              <select id="exportMfrStatusFilter" class="h-8 px-2 rounded bg-surface-container text-on-surface text-xs focus:outline-none">
+                <option value="">All Commercial Statuses</option>
+                <option value="Not Contacted">Not Contacted</option>
+                <option value="Contacted">Contacted</option>
+                <option value="In Discussion">In Discussion</option>
+                <option value="Won">Won</option>
+              </select>
+              <select id="exportMfrPriorityFilter" class="h-8 px-2 rounded bg-surface-container text-on-surface text-xs focus:outline-none">
+                <option value="">All Priorities</option>
+                <option value="High">High Priority</option>
+                <option value="Medium">Medium Priority</option>
+                <option value="Low">Low Priority</option>
+              </select>
+              <button id="exportMfrResetBtn" class="h-8 px-2 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant text-xs flex items-center gap-1" type="button">
+                <span class="material-symbols-outlined text-[16px]">refresh</span>
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-outline-variant/20">
+            <span class="font-medium text-sky-800" id="exportTableCountBadge">Showing 9 of 9 Export Manufacturers</span>
+            <span class="text-slate-500 italic">* All edits sync directly to BESS_Company_Contacts_Updated1.xlsx</span>
+          </div>
+        </div>
+
+        <!-- Export Manufacturer High-Density Table -->
+        <div class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/30 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-left min-w-[1050px]" id="exportMfrTable">
+              <thead>
+                <tr class="bg-surface-container-low text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/30 select-none">
+                  <th class="py-2.5 px-3">Company &amp; Global Origin</th>
+                  <th class="py-2.5 px-3">Category &amp; Export Focus</th>
+                  <th class="py-2.5 px-3">Cooling Tech</th>
+                  <th class="py-2.5 px-3">Indian Channel / Key Contact</th>
+                  <th class="py-2.5 px-3">Priority</th>
+                  <th class="py-2.5 px-3">Commercial Status</th>
+                  <th class="py-2.5 px-3">Outreach Angle &amp; Sourcing Fit</th>
+                  <th class="py-2.5 px-3 text-right pr-3">Action</th>
+                </tr>
+              </thead>
+              <tbody id="exportMfrTableBody" class="text-xs text-on-surface divide-y divide-outline-variant/20">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================= -->
+      <!-- TAB 2: OUTREACH PIPELINE BOARD (INTERACTIVE KANBAN MATRIX)    -->
+      <!-- ============================================================= -->
+      <section id="tab-kanban" class="workspace-tab hidden w-full px-4 md:px-6 py-4 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-lowest p-3 rounded-lg shadow-sm border border-outline-variant/30">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-amber-500 text-[22px]">view_kanban</span>
+            <div>
+              <h2 class="text-sm font-bold text-on-surface">Commercial Outreach Pipeline Matrix</h2>
+              <p class="text-[11px] text-on-surface-variant">Track progression across qualification stages from initial discovery to design-in win.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="relative w-64 md:w-72">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">search</span>
+              <input id="kanbanSearchInput" class="w-full h-8 pl-8 pr-3 rounded bg-surface-container text-on-surface text-xs placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-amber-400 transition-all border border-outline-variant/40" placeholder="Search company in Kanban..." type="search" />
+            </div>
+            <span class="text-xs text-on-surface-variant font-medium whitespace-nowrap bg-surface-container px-2 py-1 rounded" id="kanbanCountBadge">59 accounts</span>
+            <button id="kanbanAddAccountBtn" class="add-account-btn h-8 px-2.5 rounded bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs flex items-center gap-1 shrink-0 shadow-sm transition-all" type="button" title="Add New Account to Pipeline">
+              <span class="material-symbols-outlined text-[16px]">person_add</span>
+              <span>+ Add Account</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8 gap-3 overflow-x-auto pb-4" id="kanbanContainer">
+          <!-- Columns dynamically populated -->
+        </div>
+      </section>
+
+      <!-- ============================================================= -->
+      <!-- TAB 3: MONTHLY REQUIREMENT OF COOLANT (FORECAST & ALLOCATION) -->
+      <!-- ============================================================= -->
+      <section id="tab-monthly-demand" class="workspace-tab hidden w-full px-4 md:px-6 py-4 space-y-4">
+        
+        <!-- Header Banner -->
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="material-symbols-outlined text-secondary text-[22px]">water_drop</span>
+              <h2 class="text-base font-bold text-on-surface">Monthly Requirement of Coolant — Demand Forecasting &amp; Procurement Allocation</h2>
+            </div>
+            <p class="text-xs text-on-surface-variant">
+              Live synchronized with <span class="font-mono text-secondary font-semibold">BESS_Company_Contacts_Updated1.xlsx</span>. Tracks monthly dielectric coolant demand across Indian BESS gigafactories, containerized integration lines, and utility deployments.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-[11px] text-on-surface-variant bg-surface-container px-2.5 py-1 rounded font-medium border border-outline-variant/30">
+              * Edit any company's monthly requirement below to update Excel live
+            </span>
+          </div>
+        </div>
+
+        <!-- Telemetry Summary Row (4 Metric Tiles) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="monthlyKpiRibbon">
+          <!-- Card 1: Active Production Demand -->
+          <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">Already in Production (Active)</span>
+              <span class="p-1 rounded bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">factory</span>
+              </span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span class="text-2xl text-emerald-700 font-bold tracking-tight tabular-nums" id="monthlyActiveLiters">0 L</span>
+              <span class="text-xs text-emerald-800 font-semibold" id="monthlyActiveTons">~0 MT/mo</span>
+            </div>
+            <div class="text-[11px] text-on-surface-variant">
+              Across <span class="font-semibold text-emerald-800" id="monthlyActiveAccountsCount">0</span> active production plants
+            </div>
+          </div>
+
+          <!-- Card 2: Commercial Starting Soon & Pilot Demand -->
+          <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-amber-800 uppercase tracking-wider">Ramping &amp; Starting Soon</span>
+              <span class="p-1 rounded bg-amber-50 text-amber-700 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">schedule</span>
+              </span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span class="text-2xl text-amber-700 font-bold tracking-tight tabular-nums" id="monthlyStartingSoonLiters">0 L</span>
+              <span class="text-xs text-amber-800 font-semibold" id="monthlyStartingSoonCount">0 accounts</span>
+            </div>
+            <div class="text-[11px] text-on-surface-variant">
+              Plants commissioning or starting soon
+            </div>
+          </div>
+
+          <!-- Card 3: Total Monthly Requirement -->
+          <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Total Monthly Tracked</span>
+              <span class="p-1 rounded bg-teal-50 text-secondary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">water_drop</span>
+              </span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span class="text-2xl text-secondary font-bold tracking-tight tabular-nums" id="monthlyTotalLiters">0 L</span>
+              <span class="text-xs text-secondary font-semibold" id="monthlyTotalTons">~0 MT/mo</span>
+            </div>
+            <div class="text-[11px] text-on-surface-variant">
+              Across <span class="font-semibold text-on-surface" id="monthlyTotalAccountsCount">59</span> tracked accounts
+            </div>
+          </div>
+
+          <!-- Card 4: Annualized Run-Rate -->
+          <div class="bg-surface-container-lowest rounded-lg p-3 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Annualized Coolant Run-Rate</span>
+              <span class="p-1 rounded bg-surface-container-high text-on-tertiary-fixed-variant flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">analytics</span>
+              </span>
+            </div>
+            <div class="my-1.5 flex items-baseline gap-2">
+              <span class="text-2xl text-on-surface font-bold tracking-tight tabular-nums" id="annualizedTotalLiters">0 L / yr</span>
+              <span class="text-xs text-on-tertiary-fixed-variant font-semibold" id="annualizedTons">~0 MT</span>
+            </div>
+            <div class="text-[11px] text-on-surface-variant">
+              Equivalent to <span class="font-semibold text-on-surface" id="containerEquivalentCount">0</span> standard 5 MWh containers
+            </div>
+          </div>
+        </div>
+
+        <!-- Production Stage Distribution Ribbon -->
+        <div class="p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/30 shadow-sm flex flex-wrap items-center justify-between gap-2" id="productionStageSummaryRibbon">
+          <div class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px] text-secondary">precision_manufacturing</span>
+            <span>Commercial Production Stages:</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs" id="productionStagePills">
+            <!-- Dynamically populated pills -->
+          </div>
+        </div>
+
+        <!-- 12-Month Projection Schedule & Fluid SKU Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <!-- 12-Month Forecast Bar Graph -->
+          <div class="lg:col-span-8 bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">12-Month Projected Coolant Requisition Timeline</h3>
+                <p class="text-[11px] text-on-surface-variant">Projected monthly procurement ramp across current committed and pipeline accounts.</p>
+              </div>
+              <div class="flex items-center gap-3 text-[10px] font-semibold">
+                <span class="flex items-center gap-1 text-secondary"><span class="w-2 h-2 rounded bg-secondary"></span>Firm Won</span>
+                <span class="flex items-center gap-1 text-on-tertiary-fixed-variant"><span class="w-2 h-2 rounded bg-on-tertiary-fixed-variant"></span>Advanced Eval (70%)</span>
+                <span class="flex items-center gap-1 text-amber-600"><span class="w-2 h-2 rounded bg-amber-400"></span>Pipeline (30%)</span>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-12 gap-1.5 items-end h-48 pt-4 pb-2 border-b border-outline-variant/30" id="monthlyForecastBars">
+              <!-- Dynamically generated 12 month columns -->
+            </div>
+          </div>
+
+          <!-- Fluid SKU Distribution & Packaging Specs -->
+          <div class="lg:col-span-4 bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 space-y-3">
+            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Coolant Fluid SKU Demand Mix</h3>
+            
+            <div class="space-y-3 pt-1">
+              <!-- QuantiCool-Immersion -->
+              <div class="p-2.5 rounded bg-teal-50/70 border border-teal-200/60 space-y-1">
+                <div class="flex items-center justify-between text-xs font-bold text-teal-900">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-secondary"></span>QuantiCool-Immersion
+                  </span>
+                  <span id="skuImmersionLiters" class="tabular-nums font-bold">0 L/mo</span>
+                </div>
+                <div class="text-[11px] text-teal-800">
+                  Synthetic ester for direct cell immersion (0 propagation, &gt;75 kV).
+                </div>
+                <div class="w-full h-1.5 bg-teal-200/60 rounded-full overflow-hidden">
+                  <div id="skuImmersionBar" class="bg-secondary h-full" style="width: 70%;"></div>
+                </div>
+              </div>
+
+              <!-- QuantiCool-DLC -->
+              <div class="p-2.5 rounded bg-indigo-50/70 border border-indigo-200/60 space-y-1">
+                <div class="flex items-center justify-between text-xs font-bold text-indigo-900">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-on-tertiary-fixed-variant"></span>QuantiCool-DLC
+                  </span>
+                  <span id="skuDlcLiters" class="tabular-nums font-bold">0 L/mo</span>
+                </div>
+                <div class="text-[11px] text-indigo-800">
+                  Ultra-low viscosity (5.5 cSt) dielectric fluid for cold plate &amp; direct-to-chip loops.
+                </div>
+                <div class="w-full h-1.5 bg-indigo-200/60 rounded-full overflow-hidden">
+                  <div id="skuDlcBar" class="bg-on-tertiary-fixed-variant h-full" style="width: 30%;"></div>
+                </div>
+              </div>
+
+              <!-- Packaging & Logistics Triage -->
+              <div class="p-2 rounded bg-surface-container text-[11px] text-on-surface-variant space-y-1">
+                <div class="font-semibold text-on-surface">Standard Delivery Packaging:</div>
+                <div class="grid grid-cols-2 gap-1 text-[10px]">
+                  <div>• 208 L Steel Drums (~185 kg)</div>
+                  <div>• 1,000 L IBC Tote Containers</div>
+                  <div>• 24,000 L ISO Tank Delivery</div>
+                  <div>• Shelf Life: 5 Years sealed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPANY-LEVEL MONTHLY COOLANT ALLOCATION TABLE -->
+        <div class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col">
+          <div class="p-3 bg-surface-container-low border-b border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px] text-secondary">table_view</span>
+              <span class="text-xs font-bold text-on-surface uppercase tracking-wider">Company-Level Monthly Coolant Requisition Registry</span>
+              <span class="text-[10px] text-on-surface-variant font-mono" id="monthlyTableCount">59 accounts</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs flex-wrap">
+              <input type="search" id="monthlySearchInput" placeholder="Filter company..." class="h-7 px-2 rounded bg-surface-container text-on-surface text-xs focus:outline-none focus:ring-1 focus:ring-secondary w-44" />
+              <select id="monthlyStageFilter" class="h-7 px-2 rounded bg-surface-container text-on-surface text-xs focus:outline-none">
+                <option value="">All Production Stages</option>
+                <option value="Already in Production">Already in Production Only</option>
+                <option value="Commercial Production Starting Soon">Commercial Starting Soon Only</option>
+                <option value="Pilot / Prototype Stage">Pilot / Prototype Only</option>
+                <option value="Under Setup / Plant Commissioning">Under Commissioning Only</option>
+                <option value="R&D / Qualification Stage">R&D / Qualification Only</option>
+                <option value="Announced / Feasibility Planned">Announced / Planned Only</option>
+              </select>
+              <select id="monthlyCoolingFilter" class="h-7 px-2 rounded bg-surface-container text-on-surface text-xs focus:outline-none">
+                <option value="">All Architectures</option>
+                <option value="Immersion Cooled">Immersion Cooled Only</option>
+                <option value="DLC / Cold Plate">Cold Plate Only</option>
+                <option value="Liquid Cooled - Type Not Specified">Liquid Unspecified</option>
+              </select>
+              <button id="monthlyAddAccountBtn" class="add-account-btn h-7 px-2.5 rounded bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1 shrink-0 shadow-sm transition-all" type="button" title="Add New Account to Coolant Allocation Registry">
+                <span class="material-symbols-outlined text-[15px]">person_add</span>
+                <span>+ Add Account</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-left min-w-[1100px]" id="monthlyDemandTable">
+              <thead>
+                <tr class="bg-surface-container-low text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/30 select-none">
+                  <th class="py-2.5 px-3">Company &amp; Type</th>
+                  <th class="py-2.5 px-3">Cooling Architecture</th>
+                  <th class="py-2.5 px-3 text-emerald-800 font-bold">Production Stage</th>
+                  <th class="py-2.5 px-3 text-amber-800 font-bold">Start Time (Tentative)</th>
+                  <th class="py-2.5 px-3 text-secondary font-bold">Monthly Requirement (L/mo) *</th>
+                  <th class="py-2.5 px-3 text-right">Annual Run-Rate</th>
+                  <th class="py-2.5 px-3 text-center">5 MWh Eq</th>
+                  <th class="py-2.5 px-3">Target SKU</th>
+                  <th class="py-2.5 px-3 text-right pr-3">Action</th>
+                </tr>
+              </thead>
+              <tbody id="monthlyTableBody" class="text-xs text-on-surface divide-y divide-outline-variant/20">
+                <!-- Dynamically populated rows with inline inputs -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================= -->
+      <!-- TAB 4: MARKET INTEL & COOLING ANALYTICS                       -->
+      <!-- ============================================================= -->
+      <section id="tab-analytics" class="workspace-tab hidden w-full px-4 md:px-6 py-4 space-y-4">
+        <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="material-symbols-outlined text-purple-400 text-[22px]">analytics</span>
+              <h2 class="text-base font-bold text-on-surface">BESS Thermal Architecture &amp; Dielectric Market Intelligence</h2>
+            </div>
+            <p class="text-xs text-on-surface-variant">
+              Technical analysis of battery energy storage manufacturing in India. Highlights potential for QuantiCool immersion dielectric fluids (QuantiCool-Immersion synthetic ester) versus conventional cold-plate liquid cooling loops.
+            </p>
+          </div>
+          <div class="relative min-w-[260px]">
+            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">search</span>
+            <input id="analyticsSearchInput" class="w-full h-8 pl-8 pr-3 rounded bg-surface-container text-on-surface text-xs placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-purple-400 transition-all border border-outline-variant/40" placeholder="Search company thermal specs..." type="search" />
+          </div>
+        </div>
+        <div id="analyticsSearchResults" class="hidden bg-purple-950/20 p-3 rounded-lg border border-purple-500/30 space-y-2">
+          <!-- Populated when searching -->
+        </div>
+
+        <!-- Telemetry Summary Row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 space-y-2">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Immersion Fit Readiness</span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-bold text-secondary tabular-nums" id="analyticsImmersionCount">0</span>
+              <span class="text-xs text-secondary font-medium">Active / Target Accounts</span>
+            </div>
+            <p class="text-xs text-on-surface-variant">
+              Immersion cooling allows direct immersion of cells in synthetic ester dielectric fluids, eliminating cold-plate thermal resistance and thermal runaway propagation risks.
+            </p>
+          </div>
+
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 space-y-2">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Operational vs Planned Scale</span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-bold text-on-surface tabular-nums" id="analyticsMfrBreakdown">0</span>
+              <span class="text-xs text-on-surface-variant">Gigafactories &amp; Lines</span>
+            </div>
+            <p class="text-xs text-on-surface-variant">
+              Operational container lines (e.g. Cygni Energy, Gautam Solar) have live BoM fluid procurement, whereas planned lines (Godawari, Vikram Solar, Premier Energies) are in design freeze phase.
+            </p>
+          </div>
+
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 space-y-2">
+            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Estimated Annual Fluid TAM</span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-bold text-secondary tabular-nums" id="analyticsFluidTAM">~850,000 L</span>
+              <span class="text-xs text-on-surface-variant">By 2027</span>
+            </div>
+            <p class="text-xs text-on-surface-variant">
+              Assuming ~15,000–25,000 liters of dielectric coolant per 5 MWh containerized BESS utility deployment.
+            </p>
+          </div>
+        </div>
+
+        <!-- Analytics Breakdown Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Card A: Thermal Topology -->
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 space-y-3">
+            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center justify-between">
+              <span>Cooling Technology Breakdown</span>
+              <span class="text-secondary font-medium">Telemetry Distribution</span>
+            </h3>
+            <div class="space-y-2.5" id="coolingTechList">
+              <!-- Dynamically populated bars -->
+            </div>
+          </div>
+
+          <!-- Card B: Priority Targets -->
+          <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30 space-y-3">
+            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center justify-between">
+              <span>Immediate Outreached Targets (High Priority)</span>
+              <span class="text-error font-medium">Action Required</span>
+            </h3>
+            <div class="space-y-2" id="priorityTargetList">
+              <!-- Dynamically populated list -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================= -->
+      <!-- TAB 4: MANAGEMENT REPORTS                                     -->
+      <!-- ============================================================= -->
+      <section id="tab-reports" class="workspace-tab hidden w-full px-4 md:px-6 py-4 space-y-4">
+        <div class="flex items-center justify-between bg-surface-container-lowest p-4 rounded-lg shadow-sm border border-outline-variant/30">
+          <div>
+            <h2 class="text-base font-bold text-on-surface">Executive Briefing &amp; Outreach Report</h2>
+            <p class="text-xs text-on-surface-variant">Formal report summarizing market penetration, manufacturer engagements, and dielectric fluid commercial positioning.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" id="printReportBtn" class="h-8 px-3 rounded bg-primary text-on-primary text-xs font-medium flex items-center gap-1 shadow-sm">
+              <span class="material-symbols-outlined text-[16px]">print</span> Print / Save PDF
+            </button>
+            <button type="button" id="copyReportBtn" class="h-8 px-3 rounded bg-surface-container hover:bg-surface-container-high text-xs font-medium flex items-center gap-1">
+              <span class="material-symbols-outlined text-[16px]">content_copy</span> Copy Summary Memo
+            </button>
+          </div>
+        </div>
+
+        <div class="print-page bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-outline-variant/30 space-y-6 max-w-5xl mx-auto" id="reportContent">
+          <!-- Memo Header -->
+          <div class="border-b border-outline-variant pb-4 flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xl font-bold text-primary">Quanti<span class="text-secondary">Cool</span></span>
+                <span class="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded font-semibold uppercase">Executive Briefing</span>
+              </div>
+              <h1 class="text-lg font-bold text-on-surface mt-1">India BESS Manufacturer Outreach &amp; Dielectric Fluid Adoption Status</h1>
+              <p class="text-xs text-on-surface-variant">Prepared for Executive Leadership • Commercial Intelligence Team</p>
+            </div>
+            <div class="text-right text-xs text-on-surface-variant">
+              <div><strong class="text-on-surface">Date:</strong> <span id="reportDate"></span></div>
+              <div><strong class="text-on-surface">Status:</strong> Active Q3/Q4 Campaign</div>
+            </div>
+          </div>
+
+          <!-- Section 1: Executive Summary -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-primary uppercase tracking-wider">1. Executive Summary</h3>
+            <p class="text-xs leading-relaxed text-on-surface" id="reportSummaryText">
+              Loading executive analysis...
+            </p>
+          </div>
+
+          <!-- Section 2: Pipeline Metrics Table -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-primary uppercase tracking-wider">2. Pipeline Overview &amp; Conversion Health</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center" id="reportMetricGrid">
+              <!-- KPI tiles in report -->
+            </div>
+          </div>
+
+          <!-- Section 3: Priority Accounts Action Matrix -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <h3 class="text-xs font-bold text-primary uppercase tracking-wider">3. Top Priority Commercial Accounts</h3>
+              <div class="relative w-64">
+                <span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[15px] text-outline pointer-events-none">search</span>
+                <input id="reportSearchInput" class="w-full h-7 pl-7 pr-2.5 rounded bg-surface-container text-on-surface text-xs placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-rose-400 transition-all border border-outline-variant/40" placeholder="Filter company in report..." type="search" />
+              </div>
+            </div>
+            <div class="overflow-x-auto border border-outline-variant/50 rounded">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-surface-container-low font-semibold text-on-surface-variant">
+                  <tr>
+                    <th class="p-2">Company</th>
+                    <th class="p-2">Type</th>
+                    <th class="p-2">Cooling Tech</th>
+                    <th class="p-2">Status</th>
+                    <th class="p-2">Key Contact</th>
+                    <th class="p-2">Next Scheduled Action</th>
+                  </tr>
+                </thead>
+                <tbody id="reportAccountsBody" class="divide-y divide-outline-variant/30"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Section 4: Recommendations -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-primary uppercase tracking-wider">4. Strategic Recommendations for Outreach</h3>
+            <ul class="list-disc list-inside text-xs space-y-1 text-on-surface-variant">
+              <li><strong class="text-on-surface">Immediate Focus on Operational Lines:</strong> Prioritize direct introductory qualification calls with Cygni Energy and Gautam Solar to determine current coolant specification in their utility containers.</li>
+              <li><strong class="text-on-surface">Design-In Engagement for Planned Gigafactories:</strong> Schedule technical datasheets (QuantiCool-Immersion) with Godawari, Vikram Solar, and Premier Energies before container design freeze.</li>
+              <li><strong class="text-on-surface">Cooling-Type Clarification:</strong> For accounts marked "Liquid Cooled - Type Not Specified", establish whether cold plate or immersion architecture is employed during first WhatsApp contact.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ============================================================= -->
+  <!-- SLIDE-OVER DRAWER: ADD & EDIT COMPANY (SCREEN 2)               -->
+  <!-- ============================================================= -->
+  <div id="drawerBackdrop" class="hidden fixed inset-0 bg-primary/40 backdrop-blur-[2px] z-50 transition-opacity duration-200"></div>
+  <aside id="drawerPanel" class="fixed top-0 right-0 bottom-0 w-[620px] max-w-full bg-surface-container-lowest shadow-[-8px_0_32px_rgba(0,11,30,0.25)] z-50 flex flex-col overflow-hidden translate-x-full transition-transform duration-300 ease-out">
+    
+    <!-- Drawer Header -->
+    <div class="h-20 bg-primary-container px-6 py-4 flex items-center justify-between shrink-0 shadow-sm border-b border-tertiary-container">
+      <div class="flex flex-col">
+        <div class="flex items-center gap-2">
+          <h2 id="drawerTitle" class="text-base text-on-primary font-bold tracking-tight">Add Company</h2>
+          <span id="drawerTypeBadge" class="px-2 py-0.5 rounded bg-secondary/30 text-secondary-fixed text-[11px] uppercase tracking-wider font-semibold">New Record</span>
+        </div>
+        <span id="drawerMetaSub" class="text-[11px] text-on-primary-container mt-0.5">Live synchronizes to BESS_Company_Contacts_Updated1.xlsx</span>
+      </div>
+      <button type="button" id="closeDrawerBtn" aria-label="Close drawer" class="w-8 h-8 rounded bg-primary text-on-primary-container hover:text-on-primary hover:bg-tertiary-container transition-colors flex items-center justify-center">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+
+    <!-- Drawer Body Form -->
+    <form id="companyDrawerForm" class="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4 bg-surface">
+      <input type="hidden" id="field_id" />
+
+      <!-- GROUP 1: Company Identity & Scale -->
+      <section class="p-4 bg-surface-container-lowest rounded-lg shadow-sm flex flex-col gap-3 border border-outline-variant/30">
+        <div class="flex items-center justify-between pb-1 border-b border-outline-variant/20">
+          <div class="flex items-center gap-1.5 text-xs font-bold uppercase text-on-surface">
+            <span class="material-symbols-outlined text-[18px] text-secondary">factory</span>
+            <span>1. Company Identity &amp; Scale</span>
+          </div>
+          <span class="text-[10px] text-on-surface-variant font-medium">BESS OEM PROFILE</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="col-span-2 flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Company Registered Name *</label>
+            <input required id="field_company" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="e.g. Cygni Energy Pvt Ltd" type="text" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Manufacturer Type</label>
+            <select id="field_type" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none">
+              <option value="New Mfr - Operational">New Mfr - Operational</option>
+              <option value="New Mfr - Announced/Planned">New Mfr - Announced/Planned</option>
+              <option value="Existing Contact">Existing Contact</option>
+              <option value="Export Manufacturer">Export Manufacturer (Non-India Base)</option>
+              <option value="Project Developer">Project Developer</option>
+              <option value="Other / Custom">Other / Custom</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Location / Factory Site</label>
+            <input id="field_location" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="e.g. Hyderabad, Telangana" type="text" />
+          </div>
+          <div class="col-span-2 flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Production Capacity / Scale</label>
+            <input id="field_capacityOrScale" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="e.g. 4.8 GWh automated gigafactory; expanding to 10.8 GWh" type="text" />
+          </div>
+          <div class="col-span-2 flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Category / Role</label>
+            <input id="field_categoryOrRole" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="e.g. Pack/module + container integrator" type="text" />
+          </div>
+        </div>
+      </section>
+
+      <!-- GROUP 2: Thermal Architecture & Fluid Demands -->
+      <section class="p-4 bg-surface-container-lowest rounded-lg shadow-sm flex flex-col gap-3 border border-outline-variant/30">
+        <div class="flex items-center justify-between pb-1 border-b border-outline-variant/20">
+          <div class="flex items-center gap-1.5 text-xs font-bold uppercase text-on-surface">
+            <span class="material-symbols-outlined text-[18px] text-secondary">device_thermostat</span>
+            <span>2. Thermal Architecture &amp; Fluid Demand</span>
+          </div>
+          <span class="text-[10px] text-secondary font-semibold uppercase">Dielectric Fit</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Cooling Architecture</label>
+          <select id="field_liquidCooling" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none">
+            <!-- Options populated dynamically -->
+          </select>
+          <p class="text-[11px] text-outline mt-0.5 leading-tight">
+            * Immersion Cooled = Direct bath with QuantiCool synthetic ester. DLC / Cold plate = sealed cold plates. Liquid unspec = confirm on next call.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Production / Commercial Stage</label>
+            <select id="field_productionStage" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Requirement Start Time (Tentative)</label>
+            <div class="grid grid-cols-2 gap-1.5">
+              <select id="field_coolantStartMonth" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs font-semibold focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none">
+                <option value="Already Active">Already Active</option>
+                <option value="Jan">Jan</option>
+                <option value="Feb">Feb</option>
+                <option value="Mar">Mar</option>
+                <option value="Apr">Apr</option>
+                <option value="May">May</option>
+                <option value="Jun">Jun</option>
+                <option value="Jul">Jul</option>
+                <option value="Aug">Aug</option>
+                <option value="Sep">Sep</option>
+                <option value="Oct">Oct</option>
+                <option value="Nov">Nov</option>
+                <option value="Dec">Dec</option>
+              </select>
+              <select id="field_coolantStartYear" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs font-semibold focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+              </select>
+            </div>
+            <input type="hidden" id="field_coolantStartDate" />
+            <div class="flex items-center gap-1 pt-0.5 flex-wrap">
+              <span class="text-[9px] text-outline">Presets:</span>
+              <button type="button" class="preset-time-btn text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold hover:bg-emerald-100" data-month="Already Active">Active</button>
+              <button type="button" class="preset-time-btn text-[9px] px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold" data-month="Dec" data-year="2026">DEC'26</button>
+              <button type="button" class="preset-time-btn text-[9px] px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold" data-month="Jun" data-year="2025">JUN'25</button>
+              <button type="button" class="preset-time-btn text-[9px] px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold" data-month="Dec" data-year="2025">DEC'25</button>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Monthly Coolant Requirement (Liters / Month)</label>
+            <span class="text-[10px] text-secondary font-medium">Saves to Excel live</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="field_monthlyCoolantLiters" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none w-full tabular-nums font-semibold" placeholder="e.g. 20000" type="number" step="500" min="0" />
+            <span class="text-xs text-on-surface-variant font-medium shrink-0">L / mo</span>
+          </div>
+          <div class="flex items-center gap-1.5 pt-0.5 flex-wrap">
+            <span class="text-[10px] text-outline">Quick presets:</span>
+            <button type="button" class="preset-liters-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] text-secondary font-medium" data-val="1">Reset 1 L</button>
+            <button type="button" class="preset-liters-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] text-secondary font-medium" data-val="5000">5k L</button>
+            <button type="button" class="preset-liters-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] text-secondary font-medium" data-val="10000">10k L</button>
+            <button type="button" class="preset-liters-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] text-secondary font-medium" data-val="20000">20k L</button>
+            <button type="button" class="preset-liters-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] text-secondary font-medium" data-val="40000">40k L</button>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Engineering Notes &amp; Coolant Outreach Angle</label>
+          <textarea id="field_notes" rows="3" class="p-2 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="Key talking points, thermal specs, fluid viscosity requirements..."></textarea>
+        </div>
+      </section>
+
+      <!-- GROUP 3: Primary Technical Stakeholder -->
+      <section class="p-4 bg-surface-container-lowest rounded-lg shadow-sm flex flex-col gap-3 border border-outline-variant/30">
+        <div class="flex items-center justify-between pb-1 border-b border-outline-variant/20">
+          <div class="flex items-center gap-1.5 text-xs font-bold uppercase text-on-surface">
+            <span class="material-symbols-outlined text-[18px] text-secondary">contact_phone</span>
+            <span>3. Primary Technical Stakeholder</span>
+          </div>
+          <span class="text-[10px] text-on-surface-variant font-medium">DECISION MAKER</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Contact Person / Role</label>
+            <input id="field_contactPerson" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="e.g. Samir Patel — Chief of Technology" type="text" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Mobile / WhatsApp</label>
+            <input id="field_mobile" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="e.g. +91 98209 80208" type="text" />
+          </div>
+          <div class="col-span-2 flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Lead Source / Reference</label>
+            <input id="field_source" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="e.g. Clean Energy Expo 2026 / pv magazine India" type="text" />
+          </div>
+        </div>
+      </section>
+
+      <!-- GROUP 4: Commercial Workflow -->
+      <section class="p-4 bg-surface-container-lowest rounded-lg shadow-sm flex flex-col gap-3 border border-outline-variant/30">
+        <div class="flex items-center justify-between pb-1 border-b border-outline-variant/20">
+          <div class="flex items-center gap-1.5 text-xs font-bold uppercase text-on-surface">
+            <span class="material-symbols-outlined text-[18px] text-secondary">trending_up</span>
+            <span>4. Outreach &amp; Commercial Workflow</span>
+          </div>
+          <span class="text-[10px] text-on-surface-variant font-medium">STATUS</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Commercial Status</label>
+            <select id="field_status" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Priority</label>
+            <select id="field_priority" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none">
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Next Scheduled Action</label>
+            <input id="field_nextAction" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" placeholder="e.g. Review thermal test data with CTO" type="text" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] text-on-surface-variant uppercase font-semibold">Next Action Date</label>
+            <input id="field_nextActionDate" class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:ring-1 focus:ring-secondary focus:outline-none" type="date" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Action Footer -->
+      <div class="pt-2 pb-6 flex items-center justify-between gap-3">
+        <button type="button" id="drawerDeleteBtn" class="hidden h-9 px-3 rounded bg-error/10 text-error hover:bg-error hover:text-on-error transition-colors text-xs font-semibold flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">delete</span> Delete Record
+        </button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button type="button" id="drawerCancelBtn" class="h-9 px-4 rounded bg-surface-container hover:bg-surface-container-high text-xs font-semibold transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="h-9 px-5 rounded bg-secondary text-on-secondary hover:bg-secondary/90 text-xs font-semibold shadow-sm transition-colors flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">save</span> Save Changes
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </aside>
+
+  <!-- ============================================================= -->
+  <!-- MODAL: EXPORT FOR MANAGEMENT DIALOG (SCREEN 3)                -->
+  <!-- ============================================================= -->
+  <div id="exportModalBackdrop" class="hidden fixed inset-0 z-50 bg-primary/65 backdrop-blur-[3px] flex items-center justify-center p-4">
+    <div class="w-full max-w-[600px] bg-surface-container-lowest rounded-xl shadow-2xl flex flex-col overflow-hidden border border-outline-variant/30">
+      
+      <!-- Modal Header -->
+      <div class="bg-primary-container px-6 py-4 flex items-start justify-between relative border-b border-tertiary-container">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-tertiary-container flex items-center justify-center text-secondary-fixed shrink-0 mt-0.5">
+            <span class="material-symbols-outlined text-[19px]">ios_share</span>
+          </div>
+          <div class="flex flex-col">
+            <div class="flex items-center gap-1.5">
+              <h2 class="text-base font-bold text-on-primary tracking-tight">Export Outreach Summary for Management</h2>
+              <span class="px-1.5 py-0.2 rounded bg-secondary/20 text-secondary-fixed text-[10px] font-semibold uppercase">v2.4</span>
+            </div>
+            <p class="text-xs text-on-primary-container mt-0.5">Select dataset scope and columns to include in the executive briefing report.</p>
+          </div>
+        </div>
+        <button type="button" id="closeExportModalBtn" class="w-7 h-7 rounded text-on-primary-container hover:text-on-primary hover:bg-tertiary-container flex items-center justify-center transition-colors">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <form id="exportConfigForm" class="p-6 flex flex-col gap-4 max-h-[78vh] overflow-y-auto">
+        
+        <!-- 1. Export Format Selection -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider flex items-center justify-between">
+            <span>1. Target Export Format</span>
+            <span class="text-[10px] text-secondary font-medium">auto-styled cells</span>
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="export-format-card relative flex flex-col p-3 rounded-lg cursor-pointer transition-all bg-surface-container-high ring-2 ring-secondary shadow-sm text-left">
+              <input type="radio" name="exportFormat" value="xlsx" checked class="sr-only" />
+              <div class="flex items-center justify-between w-full mb-1">
+                <span class="material-symbols-outlined text-[20px] text-secondary">table_view</span>
+                <span class="w-3.5 h-3.5 rounded-full bg-secondary flex items-center justify-center text-on-secondary text-[10px]">✓</span>
+              </div>
+              <span class="text-xs font-bold text-on-surface">Excel (.xlsx)</span>
+              <span class="text-[10px] text-on-surface-variant mt-0.5 leading-tight">Complete formatted table with column widths</span>
+            </label>
+
+            <label class="export-format-card relative flex flex-col p-3 rounded-lg cursor-pointer transition-all bg-surface-container-low hover:bg-surface-container text-left border border-outline-variant/40">
+              <input type="radio" name="exportFormat" value="csv" class="sr-only" />
+              <div class="flex items-center justify-between w-full mb-1">
+                <span class="material-symbols-outlined text-[20px] text-outline">data_array</span>
+                <span class="w-3.5 h-3.5 rounded-full bg-outline-variant/50"></span>
+              </div>
+              <span class="text-xs font-bold text-on-surface">CSV (.csv)</span>
+              <span class="text-[10px] text-on-surface-variant mt-0.5 leading-tight">Raw UTF-8 flat data feed for analysis</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. Filter Scope Selection -->
+        <div class="p-3 bg-surface-container rounded-lg flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded bg-secondary-container text-on-secondary-container flex items-center justify-center">
+              <span class="material-symbols-outlined text-[15px]">filter_alt</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs font-bold text-on-surface" id="exportScopeText">Scope: 59 Filtered Companies</span>
+              <span class="text-[10px] text-on-surface-variant">Selected scope will be exported</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 bg-surface-container-lowest p-0.5 rounded shadow-sm">
+            <button type="button" id="exportScopeFilteredBtn" class="px-2.5 py-1 rounded bg-primary text-on-primary text-[11px] font-semibold transition-all">Current View</button>
+            <button type="button" id="exportScopeAllBtn" class="px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface text-[11px] font-semibold transition-all">All OEM Base</button>
+          </div>
+        </div>
+
+        <!-- 3. Quick Column Presets -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Column Configuration Presets</label>
+            <span class="text-[11px] text-outline" id="selectedColCountBadge">6 active columns</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" id="presetExecBtn" class="px-2 py-1.5 rounded bg-primary-container text-on-primary text-[11px] font-semibold transition-all shadow-sm flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">tune</span> Executive Brief (6)
+            </button>
+            <button type="button" id="presetAllBtn" class="px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-semibold transition-all flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">select_all</span> Full Audit (All)
+            </button>
+            <button type="button" id="presetImmersionBtn" class="px-2 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-semibold transition-all flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">cyclone</span> Immersion Focus
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. Column Inventory Checklists -->
+        <div class="flex flex-col gap-2">
+          <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Column Field Inventory</span>
+          <div class="flex flex-col gap-3 bg-surface-container-low p-3 rounded-lg border border-outline-variant/30 text-xs">
+            
+            <!-- Group A: Company & Scale -->
+            <div class="space-y-1">
+              <div class="text-[11px] font-bold text-primary flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">business</span> Group A — Company &amp; Scale
+              </div>
+              <div class="grid grid-cols-2 gap-2 pl-4">
+                <label class="flex items-center gap-1.5 cursor-not-allowed opacity-90">
+                  <input type="checkbox" value="company" checked disabled class="accent-primary w-3.5 h-3.5" />
+                  <span class="font-semibold text-on-surface">Company Name</span>
+                  <span class="text-[10px] text-outline uppercase font-mono">(Locked)</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="type" checked class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Account Type</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="location" class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Location / Region</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="capacityOrScale" class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Capacity / Scale</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="categoryOrRole" class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Category / Role</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Group B: Thermal & Specs -->
+            <div class="space-y-1 pt-2 border-t border-outline-variant/30">
+              <div class="text-[11px] font-bold text-secondary flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">device_thermostat</span> Group B — Thermal &amp; Outreach Specs
+              </div>
+              <div class="grid grid-cols-2 gap-2 pl-4">
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="liquidCooling" checked class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Cooling Architecture</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="monthlyCoolantLiters" checked class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span class="text-secondary font-semibold">Monthly Coolant Req (Liters)</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="notes" class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Outreach Notes &amp; Angle</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="source" class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Lead Source Evidence</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Group C: Commercial Workflow -->
+            <div class="space-y-1 pt-2 border-t border-outline-variant/30">
+              <div class="text-[11px] font-bold text-on-tertiary-fixed-variant flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">trending_up</span> Group C — Commercial Workflow
+              </div>
+              <div class="grid grid-cols-2 gap-2 pl-4">
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="priority" checked class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Priority Tier</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="status" checked class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Commercial Status</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="nextAction" checked class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Next Action</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="nextActionDate" checked class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Next Action Date</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="contactPerson" class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Contact Person</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" value="mobile" class="col-checkbox accent-secondary w-3.5 h-3.5" />
+                  <span>Mobile / WhatsApp</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="pt-2 flex items-center justify-end gap-2 border-t border-outline-variant/30">
+          <button type="button" id="exportCancelBtn" class="h-9 px-4 rounded bg-surface-container hover:bg-surface-container-high text-xs font-semibold">
+            Cancel
+          </button>
+          <button type="submit" id="downloadExportBtn" class="h-9 px-5 rounded bg-secondary text-on-secondary hover:bg-secondary/90 text-xs font-semibold shadow-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">file_download</span>
+            <span>Download Summary Report</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================= -->
+  <!-- MODAL: DIELECTRIC FLUID SPEC MATRIX (QUICK REFERENCE)         -->
+  <!-- ============================================================= -->
+  <div id="specModalBackdrop" class="hidden fixed inset-0 z-50 bg-primary/65 backdrop-blur-[3px] flex items-center justify-center p-4">
+    <div class="w-full max-w-[700px] bg-surface-container-lowest rounded-xl shadow-2xl flex flex-col overflow-hidden border border-outline-variant/30">
+      <div class="bg-primary-container px-6 py-4 flex items-center justify-between border-b border-tertiary-container">
+        <div class="flex items-center gap-2 text-on-primary">
+          <span class="material-symbols-outlined text-secondary-fixed text-[20px]">science</span>
+          <h2 class="text-base font-bold">QuantiCool Dielectric Fluid Reference Matrix</h2>
+        </div>
+        <button type="button" id="closeSpecModalBtn" class="w-7 h-7 rounded text-on-primary-container hover:text-on-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 text-xs max-h-[80vh] overflow-y-auto">
+        <p class="text-on-surface-variant leading-relaxed">
+          When speaking with BESS manufacturers, explain the fundamental advantage of dielectric fluids for utility battery packs:
+        </p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded bg-surface-container-low border border-secondary/30">
+            <div class="font-bold text-secondary text-sm">QuantiCool-Immersion</div>
+            <div class="text-[11px] text-on-surface-variant mt-0.5">Synthetic Ester Direct Cell Immersion Fluid</div>
+            <ul class="mt-2 space-y-1 list-disc list-inside text-[11px] text-on-surface">
+              <li>Kinematic Viscosity: 18 cSt @ 40°C</li>
+              <li>Breakdown Voltage: &gt;75 kV</li>
+              <li>Flash Point: &gt;260°C (High safety margin)</li>
+              <li>Biodegradable &amp; non-toxic</li>
+              <li>Direct cell contact; suppresses runaway propagation</li>
+            </ul>
+          </div>
+          <div class="p-3 rounded bg-surface-container-low border border-on-tertiary-fixed-variant/30">
+            <div class="font-bold text-on-tertiary-fixed-variant text-sm">QuantiCool-DLC</div>
+            <div class="text-[11px] text-on-surface-variant mt-0.5">Low Viscosity Dielectric for Cold Plates</div>
+            <ul class="mt-2 space-y-1 list-disc list-inside text-[11px] text-on-surface">
+              <li>Kinematic Viscosity: 5.5 cSt @ 40°C</li>
+              <li>Pour Point: &lt;-50°C</li>
+              <li>Superior pump efficiency in sub-zero ambient</li>
+              <li>Compatible with LFP &amp; NMC pouch/prismatic cells</li>
+              <li>Low dielectric dissipation factor</li>
+            </ul>
+          </div>
+        </div>
+        <div class="p-3 rounded bg-amber-50 border border-amber-200 text-amber-900 text-[11px]">
+          <strong>Outreach Triage Tip:</strong> If an OEM says their BESS container is "Liquid Cooled", ask: <em>"Does your cooling loop run glycol plates under the modules, or are the cells directly bathed in fluid?"</em> If cold-plate, inquire whether they are evaluating immersion for their next-generation higher C-rate products.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================= -->
+  <!-- MODAL: MANAGE MULTIPLE CONTACTS WITH DESIGNATION & PHONE     -->
+  <!-- ============================================================= -->
+  <div id="quickContactModalBackdrop" class="hidden fixed inset-0 z-50 bg-primary/70 backdrop-blur-[4px] flex items-center justify-center p-4">
+    <div class="w-full max-w-[640px] bg-surface-container-lowest rounded-xl shadow-2xl flex flex-col overflow-hidden border border-outline-variant/30 max-h-[90vh]">
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-5 py-3.5 flex items-center justify-between border-b border-slate-700 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">contacts</span>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white" id="quickContactModalTitle">Key Contacts &amp; Technical Stakeholders</h3>
+            <p class="text-[11px] text-slate-300" id="quickContactModalSubtitle">Add multiple designations and phone numbers with live Excel synchronization</p>
+          </div>
+        </div>
+        <button type="button" id="closeQuickContactModalBtn" class="w-7 h-7 rounded text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 flex-1 overflow-y-auto space-y-4 text-xs">
+        <input type="hidden" id="quickContactCompanyId" />
+
+        <!-- Company Info Header -->
+        <div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between gap-2 border border-outline-variant/30">
+          <div>
+            <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider block">Target Account</span>
+            <span class="text-sm font-bold text-on-surface" id="quickContactCompanyName">Power Trac Group</span>
+          </div>
+          <span class="px-2.5 py-0.5 rounded bg-primary-container text-secondary text-[11px] font-semibold" id="quickContactCompanyType">Existing Contact</span>
+        </div>
+
+        <!-- Dynamic Contacts List Container -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-on-surface uppercase text-[11px] tracking-wider flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px] text-secondary">group</span>
+              <span>All Stakeholders &amp; Contacts (<span id="quickContactCount">0</span>)</span>
+            </label>
+            <button type="button" id="addContactRowBtn" class="px-2.5 py-1 rounded bg-secondary-container hover:bg-secondary-fixed-dim text-on-secondary-container text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+              <span class="material-symbols-outlined text-[16px]">person_add</span>
+              <span>+ Add Another Contact</span>
+            </button>
+          </div>
+
+          <div id="quickContactsList" class="space-y-3">
+            <!-- Dynamically populated contact rows -->
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 bg-surface-container-low/70 flex items-center justify-between gap-2 border-t border-outline-variant/30 shrink-0">
+        <button type="button" id="quickContactFullDrawerBtn" class="text-secondary hover:underline text-xs font-semibold flex items-center gap-1">
+          <span>Open Full Company Drawer</span>
+          <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" id="quickContactCancelBtn" class="px-3 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-medium transition-colors">
+            Cancel
+          </button>
+          <button type="button" id="saveAllContactsBtn" class="px-4 py-1.5 rounded bg-secondary hover:bg-secondary/90 text-on-secondary text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">save</span>
+            <span id="saveContactsBtnText">Save Contacts</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  <!-- ============================================================= -->
+  <!-- MODAL: EXECUTIVE DAILY COMMERCIAL ACTION BRIEFING             -->
+  <!-- ============================================================= -->
+  <div id="dailyBriefingModalBackdrop" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl bg-surface-container-lowest rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-outline-variant/40 max-h-[90vh]">
+      
+      <!-- Modal Header -->
+      <div class="bg-surface-container-low px-6 py-4 flex items-center justify-between border-b border-outline-variant/30 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center border border-amber-200 shadow-sm">
+            <span class="material-symbols-outlined text-[24px]">campaign</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-bold text-on-surface tracking-wide">Daily Commercial Action Briefing</h2>
+              <span class="px-2 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-mono text-[10px]" id="briefingDateStamp">Mon, Sep 14, 2026</span>
+            </div>
+            <p class="text-xs text-on-surface-variant">Your prioritized operational outreach schedule and recommended next actions for today</p>
+          </div>
+        </div>
+        <button type="button" id="closeDailyBriefingModalBtn" class="w-8 h-8 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container flex items-center justify-center transition-colors">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 flex-1 overflow-y-auto space-y-5 text-xs text-on-surface">
+        
+        <!-- Executive KPI Banner -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-3.5 rounded-xl bg-red-50/80 border border-red-200 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-red-700 tracking-wider">Due Today &amp; Overdue</span>
+              <div class="text-2xl font-black text-red-600 tabular-nums" id="modalKpiOverdue">0</div>
+              <span class="text-[10px] text-red-600/80">Requires immediate call/outreach</span>
+            </div>
+            <span class="material-symbols-outlined text-3xl text-red-400">alarm</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-teal-50/80 border border-teal-200 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-teal-800 tracking-wider">Scheduled This Week</span>
+              <div class="text-2xl font-black text-teal-700 tabular-nums" id="modalKpiUpcoming">0</div>
+              <span class="text-[10px] text-teal-700/80">Milestones in the next 7 days</span>
+            </div>
+            <span class="material-symbols-outlined text-3xl text-teal-400">event_upcoming</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-amber-800 tracking-wider">High-Priority Accounts</span>
+              <div class="text-2xl font-black text-amber-700 tabular-nums" id="modalKpiUrgent">0</div>
+              <span class="text-[10px] text-amber-700/80">Awaiting next milestone assignment</span>
+            </div>
+            <span class="material-symbols-outlined text-3xl text-amber-400">rocket_launch</span>
+          </div>
+        </div>
+
+        <!-- Prioritized Action Checklist -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px] text-secondary">checklist</span>
+              <span>Priority Action Items for Today &amp; Upcoming Milestones</span>
+            </h4>
+            <span class="text-[11px] text-on-surface-variant">1-click WhatsApp, call, or reschedule to sync with Excel</span>
+          </div>
+
+          <div id="modalActionItemsList" class="space-y-2.5">
+            <!-- Dynamically populated action items -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-3.5 bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-outline-variant/30 shrink-0">
+        <label class="flex items-center gap-2 cursor-pointer text-on-surface-variant text-xs select-none">
+          <input type="checkbox" id="chkDontShowStartup" class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/40 text-secondary focus:ring-0 cursor-pointer" />
+          <span>Don't show this briefing automatically on startup</span>
+        </label>
+        <button type="button" id="dismissDailyBriefingBtn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5">
+          <span>Go to Action Dashboard</span>
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-lg shadow-xl text-xs font-semibold text-white bg-primary border border-secondary flex items-center gap-2">
+    <span class="material-symbols-outlined text-[18px] text-secondary-fixed" id="toastIcon">info</span>
+    <span id="toastMessage">Notification</span>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

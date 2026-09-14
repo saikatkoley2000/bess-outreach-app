@@ -1,0 +1,15 @@
+{
+  "name": "bess-outreach-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "QuantiCool BESS manufacturer outreach tracker - reads and writes your BESS_Company_Contacts_Updated.xlsx directly",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "xlsx": "^0.18.5"
+  }
+}
