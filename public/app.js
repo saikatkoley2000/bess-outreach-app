@@ -22,6 +22,96 @@ const PRIORITY_RANK = { High: 0, Medium: 1, Low: 2 };
 const el = (id) => document.getElementById(id);
 
 // ---------------------------------------------------------------------
+// Client-Side Persistent Storage (Vercel Offline & Reload Guarantee)
+// ---------------------------------------------------------------------
+const STORAGE_KEY_UPDATES = 'bess_outreach_custom_data_v2';
+const STORAGE_KEY_ACTIVITIES = 'bess_outreach_activities_v2';
+const STORAGE_KEY_NEW = 'bess_outreach_new_records_v2';
+const STORAGE_KEY_DELETED = 'bess_outreach_deleted_v2';
+
+function getLocalData(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function setLocalData(key, val) {
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch (e) {
+    console.warn('LocalStorage write failed:', e);
+  }
+}
+
+function getCompanyActivities(company) {
+  if (!company) return [];
+  if (Array.isArray(company.activities) && company.activities.length > 0) {
+    return company.activities;
+  }
+  if (typeof company.activities === 'string' && company.activities.trim().startsWith('[')) {
+    try {
+      const parsed = JSON.parse(company.activities);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {}
+  }
+  // Fallback: If company has existing notes, auto-seed as initial activity
+  const note = (company.notes || '').trim();
+  if (note) {
+    return [
+      {
+        id: `act_init_${company.id || '0'}`,
+        date: company.lastUpdated || '2026-09-14',
+        type: 'Note / Update',
+        text: note,
+        timestamp: new Date().toISOString(),
+      },
+    ];
+  }
+  return [];
+}
+
+function mergeCompaniesWithLocal(serverList = []) {
+  const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+  const localActivities = getLocalData(STORAGE_KEY_ACTIVITIES, {});
+  const localNewRecords = getLocalData(STORAGE_KEY_NEW, []);
+  const localDeleted = new Set(getLocalData(STORAGE_KEY_DELETED, []));
+
+  // 1. Filter out deleted server records
+  let list = (serverList || []).filter((c) => !localDeleted.has(c.id));
+
+  // 2. Apply updates and activities
+  list = list.map((c) => {
+    let updated = { ...c };
+    if (localUpdates[c.id]) {
+      updated = { ...updated, ...localUpdates[c.id] };
+    }
+    // Attach activities: prefer local activities if present, else server/fallback
+    if (localActivities[c.id] && localActivities[c.id].length > 0) {
+      updated.activities = localActivities[c.id];
+    } else {
+      updated.activities = getCompanyActivities(updated);
+      localActivities[c.id] = updated.activities;
+    }
+    return updated;
+  });
+
+  // 3. Append newly created local records
+  localNewRecords.forEach((nr) => {
+    if (!localDeleted.has(nr.id) && !list.some((c) => c.id === nr.id)) {
+      const rec = { ...nr };
+      rec.activities = localActivities[nr.id] || getCompanyActivities(rec);
+      list.push(rec);
+    }
+  });
+
+  setLocalData(STORAGE_KEY_ACTIVITIES, localActivities);
+  return list;
+}
+
+// ---------------------------------------------------------------------
 // API Wrapper & Toast
 // ---------------------------------------------------------------------
 
@@ -248,7 +338,13 @@ function fillFilterSelect(select, options, defaultLabel) {
 }
 
 async function loadCompanies() {
-  companies = await api('/api/companies');
+  let serverList = [];
+  try {
+    serverList = await api('/api/companies');
+  } catch (err) {
+    console.warn('API error loading companies, using local store:', err.message);
+  }
+  companies = mergeCompaniesWithLocal(serverList);
   
   // Update distinct type options in filter
   const distinctTypes = [...new Set(companies.map((c) => c.type).filter(Boolean))].sort();
@@ -807,21 +903,54 @@ function createTableRow(c) {
             </div>
           </div>
 
-          <!-- Col 3: Field Engineering Notes & Lead Context -->
-          <div class="lg:col-span-4 space-y-2 pl-0 lg:pl-2">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] uppercase font-bold text-on-surface-variant">Engineering Log &amp; Notes</span>
-              <span class="text-[10px] text-on-surface-variant font-mono">ID: ${escapeHtml(c.id)}</span>
+          <!-- Col 3: Field Engineering Notes & Activity Trail -->
+          <div class="lg:col-span-4 space-y-2 pl-0 lg:pl-2 flex flex-col justify-between">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between pb-1 border-b border-outline-variant/20">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[11px] uppercase font-bold text-on-surface-variant flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[15px] text-teal-700">history_edu</span>
+                    <span>Outreach Log &amp; Activities</span>
+                  </span>
+                  <span class="px-1.5 py-0.2 rounded bg-teal-100 text-teal-800 text-[10px] font-bold">${(c.activities || []).length} Logged</span>
+                </div>
+                <span class="text-[10px] text-on-surface-variant font-mono">ID: ${escapeHtml(c.id)}</span>
+              </div>
+
+              <!-- Mini Timeline / Activity items -->
+              <div class="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                ${
+                  (!c.activities || c.activities.length === 0)
+                    ? `
+                  <div class="p-2.5 rounded bg-surface-container-low text-xs text-on-surface italic leading-relaxed border border-outline-variant/30">
+                    "${escapeHtml(c.notes || 'No activity or outreach comments logged yet.')}"
+                  </div>
+                `
+                    : c.activities
+                        .slice(0, 3)
+                        .map((act) => `
+                  <div class="p-2 rounded bg-surface-container-low border border-outline-variant/30 flex flex-col gap-0.5">
+                    <div class="flex items-center justify-between gap-1 text-[10px]">
+                      <span class="font-semibold text-teal-900 bg-teal-50 px-1.5 py-0.2 rounded border border-teal-200/50">${escapeHtml(act.type || 'Note')}</span>
+                      <span class="font-bold text-on-surface-variant">${escapeHtml(act.date || '')}</span>
+                    </div>
+                    <div class="text-[11px] text-on-surface leading-snug line-clamp-2" title="${escapeHtml(act.text || '')}">
+                      ${escapeHtml(act.text || '')}
+                    </div>
+                  </div>
+                `).join('') +
+                (c.activities.length > 3 ? `<div class="text-[10px] text-on-surface-variant text-center italic py-0.5">+ ${c.activities.length - 3} older entries in drawer</div>` : '')
+                }
+              </div>
+
+              <div class="text-[10px] text-on-surface-variant">
+                <strong>Source:</strong> ${escapeHtml(c.source || 'Direct entry')}
+              </div>
             </div>
-            <p class="text-xs text-on-surface bg-surface-container-low p-2.5 rounded italic leading-relaxed max-h-28 overflow-y-auto">
-              "${escapeHtml(c.notes || 'No engineering outreach angle logged yet.')}"
-            </p>
-            <div class="text-[10px] text-on-surface-variant">
-              <strong>Source:</strong> ${escapeHtml(c.source || 'Direct entry')}
-            </div>
-            <div class="flex items-center justify-end gap-2 pt-1">
-              <button type="button" class="drawer-edit-full-btn h-7 px-2.5 rounded bg-primary text-on-primary text-[11px] font-medium hover:bg-primary/80 transition-colors flex items-center gap-1" data-id="${c.id}">
-                <span class="material-symbols-outlined text-[14px]">edit</span> Edit Full Record
+
+            <div class="flex items-center justify-end gap-2 pt-1.5 border-t border-outline-variant/20 mt-1">
+              <button type="button" class="drawer-edit-full-btn h-7 px-3 rounded bg-teal-800 hover:bg-teal-900 text-white text-[11px] font-bold transition-colors flex items-center gap-1 shadow-xs cursor-pointer" data-id="${c.id}">
+                <span class="material-symbols-outlined text-[14px]">add_comment</span> + Log Activity / View All
               </button>
             </div>
           </div>
@@ -877,17 +1006,21 @@ function bindTableEvents(tbody) {
     sel.addEventListener('change', async (e) => {
       const id = sel.dataset.id;
       const newStatus = sel.value;
+      const comp = companies.find((c) => c.id === id);
+      if (comp) comp.status = newStatus;
+      const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+      localUpdates[id] = { ...(localUpdates[id] || {}), status: newStatus };
+      setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+      renderStats();
       try {
-        const updated = await api(`/api/companies/${id}`, {
+        await api(`/api/companies/${id}`, {
           method: 'PUT',
           body: JSON.stringify({ status: newStatus }),
         });
-        companies = companies.map((c) => (c.id === id ? updated : c));
-        renderStats();
-        showToast(`Updated status to "${newStatus}"`);
       } catch (err) {
-        showToast(err.message, true);
+        console.warn('API sync warning:', err.message);
       }
+      showToast(`Updated status to "${newStatus}"`);
     });
   });
 
@@ -896,24 +1029,28 @@ function bindTableEvents(tbody) {
     sel.addEventListener('change', async (e) => {
       const id = sel.dataset.id;
       const newPriority = sel.value;
+      const comp = companies.find((c) => c.id === id);
+      if (comp) comp.priority = newPriority;
+      const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+      localUpdates[id] = { ...(localUpdates[id] || {}), priority: newPriority };
+      setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+      renderStats();
+      sel.className = `inline-priority-select h-7 px-1.5 rounded text-[10px] border cursor-pointer focus:ring-1 focus:ring-secondary ${
+        newPriority === 'High'
+          ? 'bg-red-50 text-red-700 border-red-200 font-bold'
+          : newPriority === 'Low'
+          ? 'bg-slate-100 text-slate-600 border-slate-200 font-semibold'
+          : 'bg-amber-50 text-amber-800 border-amber-200 font-bold'
+      }`;
       try {
-        const updated = await api(`/api/companies/${id}`, {
+        await api(`/api/companies/${id}`, {
           method: 'PUT',
           body: JSON.stringify({ priority: newPriority }),
         });
-        companies = companies.map((c) => (c.id === id ? updated : c));
-        renderStats();
-        sel.className = `inline-priority-select h-7 px-1.5 rounded text-[10px] border cursor-pointer focus:ring-1 focus:ring-secondary ${
-          newPriority === 'High'
-            ? 'bg-red-50 text-red-700 border-red-200 font-bold'
-            : newPriority === 'Low'
-            ? 'bg-slate-100 text-slate-600 border-slate-200 font-semibold'
-            : 'bg-amber-50 text-amber-800 border-amber-200 font-bold'
-        }`;
-        showToast(`Updated ${updated.company} priority to "${newPriority}"`);
       } catch (err) {
-        showToast(err.message, true);
+        console.warn('API sync warning:', err.message);
       }
+      showToast(`Updated priority to "${newPriority}"`);
     });
   });
 
@@ -2508,17 +2645,21 @@ async function rescheduleAction(companyId, daysOffsetOrDateStr) {
     ? getOffsetIsoString(daysOffsetOrDateStr)
     : daysOffsetOrDateStr;
 
+  company.nextActionDate = newDate;
+  const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+  localUpdates[companyId] = { ...(localUpdates[companyId] || {}), nextActionDate: newDate };
+  setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+  renderAllViews();
+  renderDailyBriefingModal();
+  showToast(`Rescheduled ${company.company} to ${newDate}`);
+
   try {
-    const updated = await api(`/api/companies/${companyId}`, {
+    await api(`/api/companies/${companyId}`, {
       method: 'PUT',
       body: JSON.stringify({ nextActionDate: newDate }),
     });
-    companies = companies.map((c) => (c.id === companyId ? updated : c));
-    renderAllViews();
-    renderDailyBriefingModal();
-    showToast(`Rescheduled ${company.company} to ${newDate}`);
   } catch (err) {
-    showToast(err.message, true);
+    console.warn('API notice:', err.message);
   }
 }
 
@@ -2526,17 +2667,21 @@ async function updateCompanyNextAction(companyId, nextActionText) {
   const company = companies.find((c) => c.id === companyId);
   if (!company) return;
 
+  company.nextAction = nextActionText;
+  const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+  localUpdates[companyId] = { ...(localUpdates[companyId] || {}), nextAction: nextActionText };
+  setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+  renderAllViews();
+  renderDailyBriefingModal();
+  showToast(`Updated next action for ${company.company}`);
+
   try {
-    const updated = await api(`/api/companies/${companyId}`, {
+    await api(`/api/companies/${companyId}`, {
       method: 'PUT',
       body: JSON.stringify({ nextAction: nextActionText }),
     });
-    companies = companies.map((c) => (c.id === companyId ? updated : c));
-    renderAllViews();
-    renderDailyBriefingModal();
-    showToast(`Updated next action for ${company.company}`);
   } catch (err) {
-    showToast(err.message, true);
+    console.warn('API notice:', err.message);
   }
 }
 
@@ -2545,21 +2690,44 @@ async function markActionCompleted(companyId) {
   if (!company) return;
 
   const todayStr = getTodayIsoString();
+  const patch = {
+    notes: company.notes ? `${company.notes}\n[Completed on ${todayStr}]: ${company.nextAction || 'Milestone achieved'}` : `[Completed on ${todayStr}]: ${company.nextAction || 'Milestone achieved'}`,
+    nextAction: `Completed on ${todayStr}`,
+    nextActionDate: '',
+  };
+
+  const completedActivity = {
+    id: 'act_' + Date.now(),
+    date: todayStr,
+    type: 'Note / Update',
+    text: `Completed milestone: ${company.nextAction || 'Action completed'}`,
+    timestamp: new Date().toISOString(),
+  };
+  if (!Array.isArray(company.activities)) company.activities = getCompanyActivities(company);
+  company.activities.unshift(completedActivity);
+  patch.activities = company.activities;
+
+  Object.assign(company, patch);
+
+  const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+  localUpdates[companyId] = { ...(localUpdates[companyId] || {}), ...patch };
+  setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+
+  const localActivities = getLocalData(STORAGE_KEY_ACTIVITIES, {});
+  localActivities[companyId] = company.activities;
+  setLocalData(STORAGE_KEY_ACTIVITIES, localActivities);
+
+  renderAllViews();
+  renderDailyBriefingModal();
+  showToast(`Marked milestone complete for ${company.company}!`);
+
   try {
-    const updated = await api(`/api/companies/${companyId}`, {
+    await api(`/api/companies/${companyId}`, {
       method: 'PUT',
-      body: JSON.stringify({
-        notes: company.notes ? `${company.notes}\n[Completed on ${todayStr}]: ${company.nextAction || 'Milestone achieved'}` : `[Completed on ${todayStr}]: ${company.nextAction || 'Milestone achieved'}`,
-        nextAction: `Completed on ${todayStr}`,
-        nextActionDate: '',
-      }),
+      body: JSON.stringify(patch),
     });
-    companies = companies.map((c) => (c.id === companyId ? updated : c));
-    renderAllViews();
-    renderDailyBriefingModal();
-    showToast(`Marked milestone complete for ${company.company}!`);
   } catch (err) {
-    showToast(err.message, true);
+    console.warn('API notice:', err.message);
   }
 }
 
@@ -2904,6 +3072,18 @@ function openDrawer(company = null) {
 
   el('drawerDeleteBtn').classList.toggle('hidden', !isEdit);
 
+  // Reset and render activity section
+  if (el('newActivityDate')) {
+    el('newActivityDate').value = new Date().toISOString().split('T')[0];
+  }
+  if (el('newActivityType')) {
+    el('newActivityType').value = 'Note / Update';
+  }
+  if (el('newActivityComment')) {
+    el('newActivityComment').value = '';
+  }
+  renderDrawerActivityList(company);
+
   el('drawerBackdrop').classList.remove('hidden');
   el('drawerPanel').classList.remove('translate-x-full');
 }
@@ -2913,6 +3093,165 @@ function closeDrawer() {
   setTimeout(() => {
     el('drawerBackdrop').classList.add('hidden');
   }, 250);
+}
+
+function renderDrawerActivityList(company) {
+  const container = el('drawerActivityList');
+  const countBadge = el('drawerActivityCountBadge');
+  if (!container) return;
+
+  if (!company) {
+    if (countBadge) countBadge.textContent = '0 Logged';
+    container.innerHTML = `
+      <div class="p-3 text-center rounded bg-surface-container-low border border-dashed border-outline-variant/40 text-xs text-on-surface-variant italic">
+        Save the new account record first to begin logging historical outreach activities.
+      </div>
+    `;
+    return;
+  }
+
+  const activities = getCompanyActivities(company);
+  if (countBadge) countBadge.textContent = `${activities.length} Logged`;
+
+  if (activities.length === 0) {
+    container.innerHTML = `
+      <div class="p-3 text-center rounded bg-surface-container-low border border-dashed border-outline-variant/40 text-xs text-on-surface-variant italic">
+        No previous outreach activities logged yet for this account. Use the form above to log your first comment or action.
+      </div>
+    `;
+    return;
+  }
+
+  const typeStyles = {
+    'Note / Update': 'bg-slate-100 text-slate-800 border-slate-300',
+    'Phone Call': 'bg-blue-100 text-blue-800 border-blue-300',
+    'WhatsApp': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    'Sample Sent': 'bg-purple-100 text-purple-800 border-purple-300',
+    'Thermal Review': 'bg-amber-100 text-amber-800 border-amber-300',
+    'Meeting / Visit': 'bg-teal-100 text-teal-800 border-teal-300',
+    'Commercial Quote': 'bg-indigo-100 text-indigo-800 border-indigo-300',
+    'PO & Payment': 'bg-green-100 text-green-900 border-green-300 font-bold',
+  };
+
+  container.innerHTML = activities
+    .map((act) => {
+      const badgeStyle = typeStyles[act.type] || 'bg-teal-100 text-teal-800 border-teal-300';
+      return `
+        <div class="p-2.5 rounded bg-surface-container-low border border-outline-variant/40 flex flex-col gap-1.5 transition-all hover:bg-surface-container">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold border ${badgeStyle}">
+                ${escapeHtml(act.type || 'Activity')}
+              </span>
+              <span class="text-[11px] font-bold text-on-surface">
+                ${escapeHtml(act.date || 'Undated')}
+              </span>
+            </div>
+            <button type="button" class="delete-activity-btn text-outline hover:text-error transition-colors p-0.5 cursor-pointer" data-act-id="${act.id}" title="Remove this entry">
+              <span class="material-symbols-outlined text-[14px]">delete</span>
+            </button>
+          </div>
+          <p class="text-xs text-on-surface whitespace-pre-wrap leading-relaxed">
+            ${escapeHtml(act.text || '')}
+          </p>
+        </div>
+      `;
+    })
+    .join('');
+
+  // Attach delete handlers
+  container.querySelectorAll('.delete-activity-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const actId = btn.dataset.actId;
+      deleteActivityFromCompany(company.id, actId);
+    });
+  });
+}
+
+function addActivityToCompany(companyId, activityData) {
+  const comp = companies.find((c) => c.id === companyId);
+  if (!comp) return;
+
+  if (!Array.isArray(comp.activities)) {
+    comp.activities = getCompanyActivities(comp);
+  }
+
+  // Prepend to activities array (newest first)
+  comp.activities.unshift(activityData);
+
+  // Update company notes with chronological journal
+  const summaryNotes = comp.activities
+    .map((a) => `[${a.date}] [${a.type}]: ${a.text}`)
+    .join('\n\n');
+  comp.notes = summaryNotes;
+  if (el('field_notes')) el('field_notes').value = summaryNotes;
+
+  // 1. Save to LocalStorage immediately (Vercel offline/persistence guarantee)
+  const localActivities = getLocalData(STORAGE_KEY_ACTIVITIES, {});
+  localActivities[companyId] = comp.activities;
+  setLocalData(STORAGE_KEY_ACTIVITIES, localActivities);
+
+  const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+  localUpdates[companyId] = {
+    ...(localUpdates[companyId] || {}),
+    activities: comp.activities,
+    notes: comp.notes,
+    lastUpdated: activityData.date,
+  };
+  setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+
+  // 2. Try sending PUT to API in background
+  api(`/api/companies/${companyId}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      activities: comp.activities,
+      notes: comp.notes,
+    }),
+  }).catch((err) => {
+    console.warn('API sync notice (saved locally in browser):', err.message);
+  });
+
+  // 3. Update UI
+  renderDrawerActivityList(comp);
+  renderAllViews();
+  showToast(`Logged "${activityData.type}" for ${comp.company}`);
+}
+
+function deleteActivityFromCompany(companyId, actId) {
+  const comp = companies.find((c) => c.id === companyId);
+  if (!comp || !Array.isArray(comp.activities)) return;
+
+  if (!confirm('Remove this activity from history?')) return;
+
+  comp.activities = comp.activities.filter((a) => a.id !== actId);
+  const summaryNotes = comp.activities
+    .map((a) => `[${a.date}] [${a.type}]: ${a.text}`)
+    .join('\n\n');
+  comp.notes = summaryNotes;
+  if (el('field_notes')) el('field_notes').value = summaryNotes;
+
+  // LocalStorage
+  const localActivities = getLocalData(STORAGE_KEY_ACTIVITIES, {});
+  localActivities[companyId] = comp.activities;
+  setLocalData(STORAGE_KEY_ACTIVITIES, localActivities);
+
+  const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+  localUpdates[companyId] = {
+    ...(localUpdates[companyId] || {}),
+    activities: comp.activities,
+    notes: comp.notes,
+  };
+  setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+
+  // API sync
+  api(`/api/companies/${companyId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ activities: comp.activities, notes: comp.notes }),
+  }).catch(() => {});
+
+  renderDrawerActivityList(comp);
+  renderAllViews();
+  showToast('Activity removed.');
 }
 
 // ---------------------------------------------------------------------
@@ -3172,19 +3511,33 @@ function setupEventListeners() {
       valid[0].isPrimary = true;
     }
 
+    // Save locally immediately
+    const comp = companies.find((c) => c.id === id);
+    if (comp) {
+      comp.contacts = valid;
+      comp.contactPerson = valid.map((c) => (c.designation ? `${c.name} — ${c.designation}` : c.name)).join('; ');
+      comp.mobile = valid.map((c) => c.mobile).filter(Boolean).join('; ');
+    }
+    const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+    localUpdates[id] = { ...(localUpdates[id] || {}), contacts: valid };
+    setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+    closeQuickContactModal();
+    renderAllViews();
+
     try {
-      showToast(`Saving ${valid.length} contact${valid.length === 1 ? '' : 's'} to Excel...`);
+      showToast(`Saving ${valid.length} contact${valid.length === 1 ? '' : 's'}...`);
       const updated = await api(`/api/companies/${id}`, {
         method: 'PUT',
         body: JSON.stringify({ contacts: valid }),
       });
-
-      companies = companies.map((c) => (c.id === id ? updated : c));
-      closeQuickContactModal();
-      renderAllViews();
-      showToast(`Saved ${valid.length} contact${valid.length === 1 ? '' : 's'} for ${updated.company}`);
+      if (updated) {
+        companies = companies.map((c) => (c.id === id ? { ...c, ...updated } : c));
+        renderAllViews();
+      }
+      showToast(`Saved ${valid.length} contact${valid.length === 1 ? '' : 's'}`);
     } catch (err) {
-      showToast(err.message, true);
+      console.warn('API sync notice:', err.message);
+      showToast(`Saved ${valid.length} contact${valid.length === 1 ? '' : 's'} locally`);
     }
   });
 
@@ -3386,7 +3739,7 @@ function setupEventListeners() {
       const res = await fetch('/api/export-simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ columns: cols, format, ids }),
+        body: JSON.stringify({ columns: cols, format, ids, customData: companies }),
       });
       if (!res.ok) throw new Error('Export generation failed.');
 
@@ -3436,27 +3789,84 @@ function setupEventListeners() {
       return;
     }
 
-    try {
-      if (id) {
-        const updated = await api(`/api/companies/${id}`, {
-          method: 'PUT',
-          body: JSON.stringify(payload),
-        });
-        companies = companies.map((c) => (c.id === id ? updated : c));
-        showToast(`Saved changes for ${payload.company}`);
-      } else {
-        const created = await api('/api/companies', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
-        companies.push(created);
-        showToast(`Added ${payload.company} to database`);
-      }
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    if (id) {
+      // 1. Immediately update in memory and local storage
+      const comp = companies.find((c) => c.id === id);
+      const updatedLocal = { ...(comp || {}), ...payload, lastUpdated: todayStr };
+      companies = companies.map((c) => (c.id === id ? updatedLocal : c));
+
+      const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+      localUpdates[id] = { ...(localUpdates[id] || {}), ...payload, lastUpdated: todayStr };
+      setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+
       closeDrawer();
       renderAllViews();
-    } catch (err) {
-      showToast(err.message, true);
+      showToast(`Saved changes for ${payload.company}`);
+
+      // 2. Try server sync in background
+      api(`/api/companies/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      }).catch((err) => {
+        console.warn('API sync notice (stored locally):', err.message);
+      });
+    } else {
+      // 1. New Company creation
+      const newId = 'C' + String(Date.now()).slice(-4);
+      const newCompany = {
+        id: newId,
+        ...payload,
+        activities: payload.notes ? [{ id: 'act_init_' + newId, date: todayStr, type: 'Note / Update', text: payload.notes }] : [],
+        lastUpdated: todayStr,
+      };
+
+      companies.push(newCompany);
+
+      const localNewRecords = getLocalData(STORAGE_KEY_NEW, []);
+      localNewRecords.push(newCompany);
+      setLocalData(STORAGE_KEY_NEW, localNewRecords);
+
+      closeDrawer();
+      renderAllViews();
+      showToast(`Added ${payload.company} to tracker`);
+
+      // 2. Try server sync in background
+      api('/api/companies', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }).catch((err) => {
+        console.warn('API sync notice (stored locally):', err.message);
+      });
     }
+  });
+
+  // Add new activity button in Drawer (Group 5)
+  el('addNewActivityBtn')?.addEventListener('click', () => {
+    const companyId = el('field_id')?.value;
+    const comment = (el('newActivityComment')?.value || '').trim();
+    if (!comment) {
+      showToast('Please enter an outreach comment or activity detail.', true);
+      el('newActivityComment')?.focus();
+      return;
+    }
+
+    if (!companyId) {
+      showToast('Please save the new company details first before logging activities.', true);
+      return;
+    }
+
+    const activityData = {
+      id: 'act_' + Date.now(),
+      date: el('newActivityDate')?.value || new Date().toISOString().split('T')[0],
+      type: el('newActivityType')?.value || 'Note / Update',
+      text: comment,
+      timestamp: new Date().toISOString(),
+    };
+
+    addActivityToCompany(companyId, activityData);
+    if (el('newActivityComment')) el('newActivityComment').value = '';
   });
 
   // Drawer Delete Record
@@ -3464,18 +3874,31 @@ function setupEventListeners() {
     const id = el('field_id').value;
     const company = companies.find((c) => c.id === id);
     if (!id || !company) return;
-    if (!confirm(`Are you sure you want to remove "${company.company}" from the tracker? This updates the Excel file.`)) return;
+    if (!confirm(`Are you sure you want to remove "${company.company}" from the tracker?`)) return;
 
-    try {
-      await api(`/api/companies/${id}`, { method: 'DELETE' });
-      companies = companies.filter((c) => c.id !== id);
-      selectedIds.delete(id);
-      closeDrawer();
-      renderAllViews();
-      showToast('Company removed from database.');
-    } catch (err) {
-      showToast(err.message, true);
+    // Remove from in-memory and local storage
+    companies = companies.filter((c) => c.id !== id);
+    selectedIds.delete(id);
+
+    const localDeleted = getLocalData(STORAGE_KEY_DELETED, []);
+    if (!localDeleted.includes(id)) {
+      localDeleted.push(id);
+      setLocalData(STORAGE_KEY_DELETED, localDeleted);
     }
+
+    // Clean up updates or new records
+    const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+    delete localUpdates[id];
+    setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+
+    const localNew = getLocalData(STORAGE_KEY_NEW, []).filter((c) => c.id !== id);
+    setLocalData(STORAGE_KEY_NEW, localNew);
+
+    closeDrawer();
+    renderAllViews();
+    showToast(`Removed "${company.company}" from database.`);
+
+    api(`/api/companies/${id}`, { method: 'DELETE' }).catch(() => {});
   });
 
   // Management Report Print & Copy
