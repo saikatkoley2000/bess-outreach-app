@@ -1497,45 +1497,83 @@
         </div>
 
         <!-- New Activity Logger Card -->
-        <div class="p-3 rounded-lg bg-teal-50/50 border border-teal-200/60 flex flex-col gap-2.5">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-teal-900 flex items-center gap-1">
-              <span class="material-symbols-outlined text-[15px] text-teal-700">add_comment</span>
-              <span>Log New Outreach Activity / Comment</span>
+        <div class="p-3.5 rounded-lg bg-teal-50/60 border border-teal-300/80 flex flex-col gap-3 shadow-xs">
+          <div class="flex items-center justify-between pb-1 border-b border-teal-200/60">
+            <span class="text-xs font-bold text-teal-950 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[17px] text-teal-700">add_comment</span>
+              <span>Log Activity &amp; Plan Next Work</span>
             </span>
-            <span class="text-[10px] text-teal-800 font-medium">Appends to history</span>
+            <span class="text-[10px] text-teal-800 font-semibold bg-teal-100/80 px-2 py-0.5 rounded-full">Syncs with Daily Task</span>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <div class="flex flex-col gap-1">
-              <label class="text-[10px] text-teal-900 uppercase font-semibold">Activity Date</label>
-              <input id="newActivityDate" type="date" class="h-8 px-2 rounded bg-surface-container-lowest text-on-surface text-xs border border-teal-300/70 focus:ring-1 focus:ring-secondary focus:outline-none" />
+          <!-- Step 1: What was done -->
+          <div class="flex flex-col gap-2">
+            <div class="grid grid-cols-2 gap-2">
+              <div class="flex flex-col gap-1">
+                <label class="text-[10px] text-teal-950 uppercase font-bold">Activity Date</label>
+                <input id="newActivityDate" type="date" class="h-8 px-2 rounded bg-surface-container-lowest text-on-surface text-xs border border-teal-300/80 focus:ring-1 focus:ring-secondary focus:outline-none font-medium" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-[10px] text-teal-950 uppercase font-bold">Activity Type</label>
+                <select id="newActivityType" class="h-8 px-2 rounded bg-surface-container-lowest text-on-surface text-xs border border-teal-300/80 focus:ring-1 focus:ring-secondary focus:outline-none font-medium">
+                  <option value="Phone Call">📞 Phone Call Follow-Up</option>
+                  <option value="WhatsApp">📱 WhatsApp Outreach</option>
+                  <option value="Sample Sent">📦 Sample Sent (Testing)</option>
+                  <option value="Meeting / Visit">🤝 Meeting / Factory Visit</option>
+                  <option value="Thermal Review">🧪 Thermal / Tech Evaluation</option>
+                  <option value="Commercial Quote">📄 Proposal / Quotation</option>
+                  <option value="PO &amp; Payment">💰 PO &amp; Payment Discussion</option>
+                  <option value="Note / Update">💬 Note / Internal Update</option>
+                </select>
+              </div>
             </div>
+
             <div class="flex flex-col gap-1">
-              <label class="text-[10px] text-teal-900 uppercase font-semibold">Activity Type</label>
-              <select id="newActivityType" class="h-8 px-2 rounded bg-surface-container-lowest text-on-surface text-xs border border-teal-300/70 focus:ring-1 focus:ring-secondary focus:outline-none">
-                <option value="Note / Update">💬 Note / Internal Update</option>
-                <option value="Phone Call">📞 Phone Call Follow-Up</option>
-                <option value="WhatsApp">📱 WhatsApp Outreach</option>
-                <option value="Sample Sent">📦 Sample Sent (Testing)</option>
-                <option value="Thermal Review">🧪 Thermal / Tech Evaluation</option>
-                <option value="Meeting / Visit">🤝 Meeting / Factory Visit</option>
-                <option value="Commercial Quote">📄 Proposal / Quotation</option>
-                <option value="PO &amp; Payment">💰 PO &amp; Payment Discussion</option>
-              </select>
+              <label class="text-[10px] text-teal-950 uppercase font-bold">Activity Details / Outreach Note</label>
+              <textarea id="newActivityComment" rows="2" class="px-2.5 py-1.5 rounded bg-surface-container-lowest text-on-surface text-xs border border-teal-300/80 focus:ring-1 focus:ring-secondary focus:outline-none resize-none leading-relaxed" placeholder="e.g. Connected on phone and customer asked to share details in WhatsApp..."></textarea>
             </div>
           </div>
 
-          <div class="flex flex-col gap-1">
-            <label class="text-[10px] text-teal-900 uppercase font-semibold">Activity Details / Outreach Note</label>
-            <textarea id="newActivityComment" rows="2" class="px-2.5 py-1.5 rounded bg-surface-container-lowest text-on-surface text-xs border border-teal-300/70 focus:ring-1 focus:ring-secondary focus:outline-none resize-none leading-relaxed" placeholder="e.g. Sent 60Ltr QuantiCool 105 for testing purpose with PO &amp; Payment..."></textarea>
+          <!-- Step 2: Next Work Plan & Daily Task Schedule -->
+          <div class="p-2.5 rounded-lg bg-surface-container-lowest border border-teal-200/80 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase text-teal-950 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[15px] text-secondary">event_upcoming</span>
+                <span>Next Work Plan &amp; Daily Task Schedule</span>
+              </span>
+              <div class="flex items-center gap-1">
+                <span class="text-[10px] text-on-surface-variant font-medium">Presets:</span>
+                <button type="button" class="preset-next-date-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface border border-outline-variant/40 cursor-pointer" data-days="1">+1d</button>
+                <button type="button" class="preset-next-date-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface border border-outline-variant/40 cursor-pointer" data-days="2">+2d</button>
+                <button type="button" class="preset-next-date-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface border border-outline-variant/40 cursor-pointer" data-days="3">+3d</button>
+                <button type="button" class="preset-next-date-btn px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface border border-outline-variant/40 cursor-pointer" data-days="7">+1w</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="flex flex-col gap-1">
+                <label class="text-[10px] text-on-surface-variant uppercase font-semibold">Next Scheduled Date</label>
+                <input id="newNextActionDate" type="date" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs border border-outline-variant/40 focus:ring-1 focus:ring-secondary focus:outline-none font-medium" />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-[10px] text-on-surface-variant uppercase font-semibold">Next Action / Work Plan</label>
+                <input id="newNextActionPlan" type="text" placeholder="e.g. Send details in WhatsApp" class="h-8 px-2 rounded bg-surface-container-low text-on-surface text-xs border border-outline-variant/40 focus:ring-1 focus:ring-secondary focus:outline-none font-medium" />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-0.5">
+              <label class="flex items-center gap-1.5 text-[10px] text-on-surface-variant cursor-pointer select-none">
+                <input type="checkbox" id="advanceStatusCheckbox" checked class="w-3.5 h-3.5 rounded text-secondary focus:ring-0 cursor-pointer" />
+                <span>Mark today's task complete &amp; set account as Contacted</span>
+              </label>
+            </div>
           </div>
 
-          <div class="flex items-center justify-between pt-1">
-            <span class="text-[10px] text-on-surface-variant italic">Older comments are preserved in the list below.</span>
-            <button type="button" id="addNewActivityBtn" class="h-7 px-3 rounded bg-teal-800 hover:bg-teal-900 text-white text-[11px] font-bold flex items-center gap-1 transition-colors shadow-xs cursor-pointer">
-              <span class="material-symbols-outlined text-[14px]">add</span>
-              <span>Post Activity</span>
+          <div class="flex items-center justify-between pt-1 border-t border-teal-200/50">
+            <span class="text-[10px] text-on-surface-variant italic">Syncs immediately to Daily Task &amp; Pipeline table.</span>
+            <button type="button" id="addNewActivityBtn" class="h-8 px-4 rounded bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">task_alt</span>
+              <span>Post Activity &amp; Update Task</span>
             </button>
           </div>
         </div>

@@ -95,6 +95,32 @@ function mergeCompaniesWithLocal(serverList = []) {
       updated.activities = getCompanyActivities(updated);
       localActivities[c.id] = updated.activities;
     }
+
+    // Auto-synchronize next work plan from activities
+    if (Array.isArray(updated.activities) && updated.activities.length > 0) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const futureActs = updated.activities
+        .filter((a) => a.date && a.date > todayStr && a.text)
+        .sort((a, b) => (a.date || '').localeCompare(b.date || '')); // earliest upcoming future activity first
+
+      if (futureActs.length > 0) {
+        // If current nextActionDate is <= todayStr, auto-sync to the nearest upcoming future activity!
+        if (!updated.nextActionDate || updated.nextActionDate <= todayStr) {
+          updated.nextActionDate = futureActs[0].date;
+          updated.nextAction = futureActs[0].text;
+          if (updated.status === 'Not Contacted') {
+            updated.status = 'Contacted';
+          }
+          localUpdates[updated.id] = {
+            ...(localUpdates[updated.id] || {}),
+            nextActionDate: updated.nextActionDate,
+            nextAction: updated.nextAction,
+            status: updated.status,
+          };
+        }
+      }
+    }
+
     return updated;
   });
 
@@ -108,6 +134,7 @@ function mergeCompaniesWithLocal(serverList = []) {
   });
 
   setLocalData(STORAGE_KEY_ACTIVITIES, localActivities);
+  setLocalData(STORAGE_KEY_UPDATES, localUpdates);
   return list;
 }
 
@@ -3072,15 +3099,30 @@ function openDrawer(company = null) {
 
   el('drawerDeleteBtn').classList.toggle('hidden', !isEdit);
 
-  // Reset and render activity section
+  // Reset and render activity section & next work plan
+  const todayStr = getTodayIsoString();
   if (el('newActivityDate')) {
-    el('newActivityDate').value = new Date().toISOString().split('T')[0];
+    el('newActivityDate').value = todayStr;
   }
   if (el('newActivityType')) {
-    el('newActivityType').value = 'Note / Update';
+    el('newActivityType').value = 'Phone Call';
   }
   if (el('newActivityComment')) {
     el('newActivityComment').value = '';
+  }
+  if (el('newNextActionDate')) {
+    const existingFutureDate = (company?.nextActionDate && company.nextActionDate > todayStr)
+      ? company.nextActionDate
+      : getOffsetIsoString(2);
+    el('newNextActionDate').value = existingFutureDate;
+  }
+  if (el('newNextActionPlan')) {
+    el('newNextActionPlan').value = (company?.nextActionDate && company.nextActionDate > todayStr)
+      ? (company.nextAction || '')
+      : '';
+  }
+  if (el('advanceStatusCheckbox')) {
+    el('advanceStatusCheckbox').checked = company ? (company.status === 'Not Contacted') : true;
   }
   renderDrawerActivityList(company);
 
@@ -3168,7 +3210,7 @@ function renderDrawerActivityList(company) {
   });
 }
 
-function addActivityToCompany(companyId, activityData) {
+function addActivityToCompany(companyId, activityData, nextPlanData = null) {
   const comp = companies.find((c) => c.id === companyId);
   if (!comp) return;
 
@@ -3186,6 +3228,56 @@ function addActivityToCompany(companyId, activityData) {
   comp.notes = summaryNotes;
   if (el('field_notes')) el('field_notes').value = summaryNotes;
 
+  const todayStr = getTodayIsoString();
+
+  // -------------------------------------------------------------
+  // SYNCHRONIZATION WITH DAILY TASK & NEXT SCHEDULED WORK PLAN
+  // -------------------------------------------------------------
+  let updatedNextAction = comp.nextAction;
+  let updatedNextActionDate = comp.nextActionDate;
+  let updatedStatus = comp.status;
+
+  if (nextPlanData) {
+    if (nextPlanData.nextActionDate) {
+      // User explicitly set next scheduled date
+      updatedNextActionDate = nextPlanData.nextActionDate;
+      updatedNextAction = nextPlanData.nextAction || ('Follow up (' + activityData.type + ')');
+    } else if (activityData.date > todayStr) {
+      // Activity itself has a future date
+      updatedNextActionDate = activityData.date;
+      updatedNextAction = nextPlanData.nextAction || activityData.text;
+    } else if (comp.nextActionDate && comp.nextActionDate <= todayStr) {
+      // Completed today's work without scheduling a future date
+      updatedNextAction = `Completed on ${todayStr}: ${comp.nextAction || activityData.text}`;
+      updatedNextActionDate = '';
+    }
+
+    if (nextPlanData.advanceStatus && comp.status === 'Not Contacted') {
+      updatedStatus = 'Contacted';
+    }
+  } else {
+    // Fallback if called without nextPlanData
+    if (activityData.date > todayStr) {
+      updatedNextActionDate = activityData.date;
+      updatedNextAction = activityData.text;
+    } else if (comp.nextActionDate && comp.nextActionDate <= todayStr) {
+      updatedNextAction = `Completed on ${todayStr}: ${comp.nextAction || activityData.text}`;
+      updatedNextActionDate = '';
+    }
+    if (comp.status === 'Not Contacted' && ['Phone Call', 'WhatsApp', 'Sample Sent', 'Meeting / Visit'].includes(activityData.type)) {
+      updatedStatus = 'Contacted';
+    }
+  }
+
+  comp.nextAction = updatedNextAction;
+  comp.nextActionDate = updatedNextActionDate;
+  comp.status = updatedStatus;
+
+  // Keep drawer form inputs in sync
+  if (el('field_nextAction')) el('field_nextAction').value = comp.nextAction || '';
+  if (el('field_nextActionDate')) el('field_nextActionDate').value = comp.nextActionDate || '';
+  if (el('field_status')) el('field_status').value = comp.status;
+
   // 1. Save to LocalStorage immediately (Vercel offline/persistence guarantee)
   const localActivities = getLocalData(STORAGE_KEY_ACTIVITIES, {});
   localActivities[companyId] = comp.activities;
@@ -3196,6 +3288,9 @@ function addActivityToCompany(companyId, activityData) {
     ...(localUpdates[companyId] || {}),
     activities: comp.activities,
     notes: comp.notes,
+    nextAction: comp.nextAction,
+    nextActionDate: comp.nextActionDate,
+    status: comp.status,
     lastUpdated: activityData.date,
   };
   setLocalData(STORAGE_KEY_UPDATES, localUpdates);
@@ -3206,15 +3301,23 @@ function addActivityToCompany(companyId, activityData) {
     body: JSON.stringify({
       activities: comp.activities,
       notes: comp.notes,
+      nextAction: comp.nextAction,
+      nextActionDate: comp.nextActionDate,
+      status: comp.status,
     }),
   }).catch((err) => {
     console.warn('API sync notice (saved locally in browser):', err.message);
   });
 
-  // 3. Update UI
+  // 3. Update UI & re-render Daily Task lists
   renderDrawerActivityList(comp);
   renderAllViews();
-  showToast(`Logged "${activityData.type}" for ${comp.company}`);
+  if (activeTab === 'tab-agenda') renderActionAgendaTab();
+
+  const syncMsg = updatedNextActionDate
+    ? `Logged "${activityData.type}" & scheduled next task for ${updatedNextActionDate}!`
+    : `Logged "${activityData.type}" and marked today's task complete!`;
+  showToast(syncMsg);
 }
 
 function deleteActivityFromCompany(companyId, actId) {
@@ -3842,6 +3945,16 @@ function setupEventListeners() {
     }
   });
 
+  // Preset Next Date buttons in Drawer (+1d, +2d, +3d, +1w)
+  document.querySelectorAll('.preset-next-date-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const days = parseInt(btn.dataset.days, 10);
+      if (days && el('newNextActionDate')) {
+        el('newNextActionDate').value = getOffsetIsoString(days);
+      }
+    });
+  });
+
   // Add new activity button in Drawer (Group 5)
   el('addNewActivityBtn')?.addEventListener('click', () => {
     const companyId = el('field_id')?.value;
@@ -3859,14 +3972,21 @@ function setupEventListeners() {
 
     const activityData = {
       id: 'act_' + Date.now(),
-      date: el('newActivityDate')?.value || new Date().toISOString().split('T')[0],
-      type: el('newActivityType')?.value || 'Note / Update',
+      date: el('newActivityDate')?.value || getTodayIsoString(),
+      type: el('newActivityType')?.value || 'Phone Call',
       text: comment,
       timestamp: new Date().toISOString(),
     };
 
-    addActivityToCompany(companyId, activityData);
+    const nextPlanData = {
+      nextActionDate: el('newNextActionDate')?.value || '',
+      nextAction: (el('newNextActionPlan')?.value || '').trim(),
+      advanceStatus: el('advanceStatusCheckbox')?.checked !== false,
+    };
+
+    addActivityToCompany(companyId, activityData, nextPlanData);
     if (el('newActivityComment')) el('newActivityComment').value = '';
+    if (el('newNextActionPlan')) el('newNextActionPlan').value = '';
   });
 
   // Drawer Delete Record
