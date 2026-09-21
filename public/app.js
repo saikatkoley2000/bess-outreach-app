@@ -46,6 +46,148 @@ function setLocalData(key, val) {
   }
 }
 
+// ---------------------------------------------------------------------
+// Multi-Device Cloud Synchronization (Shared Across All Users & Devices)
+// ---------------------------------------------------------------------
+const CLOUD_SYNC_BIN = 'https://extendsclass.com/api/json-storage/bin/beceaab';
+let isSyncingCloud = false;
+let lastCloudSyncTime = null;
+
+function updateSyncBadgeUI(status) {
+  const badge = el('syncStatusBadge');
+  const icon = el('topSyncIcon');
+  if (!badge) return;
+
+  if (status === 'syncing') {
+    badge.textContent = 'Syncing cloud data...';
+    if (icon) icon.classList.add('animate-spin');
+  } else if (status === 'synced') {
+    const timeStr = lastCloudSyncTime ? lastCloudSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Active';
+    badge.textContent = `Cloud Live Synced • ${timeStr}`;
+    if (icon) icon.classList.remove('animate-spin');
+  } else if (status === 'offline') {
+    badge.textContent = 'Offline (Saved Locally)';
+    if (icon) icon.classList.remove('animate-spin');
+  }
+}
+
+async function fetchCloudState() {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4500);
+    const res = await fetch(CLOUD_SYNC_BIN, {
+      signal: controller.signal,
+      headers: { 'Accept': 'application/json' },
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+async function pushCloudState() {
+  if (isSyncingCloud) return;
+  try {
+    const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+    const localActivities = getLocalData(STORAGE_KEY_ACTIVITIES, {});
+    const localNewRecords = getLocalData(STORAGE_KEY_NEW, []);
+    const localDeleted = getLocalData(STORAGE_KEY_DELETED, []);
+
+    const payload = {
+      appName: 'bess-outreach-app',
+      updatedAt: new Date().toISOString(),
+      updates: localUpdates,
+      activities: localActivities,
+      newRecords: localNewRecords,
+      deletedIds: localDeleted,
+    };
+
+    await fetch(CLOUD_SYNC_BIN, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    lastCloudSyncTime = new Date();
+    updateSyncBadgeUI('synced');
+  } catch (e) {
+    console.warn('Cloud state push error:', e.message);
+  }
+}
+
+async function syncCloudState(silent = false) {
+  if (isSyncingCloud) return;
+  isSyncingCloud = true;
+  if (!silent) updateSyncBadgeUI('syncing');
+
+  try {
+    const cloud = await fetchCloudState();
+    if (cloud && (cloud.updates || cloud.activities || (cloud.newRecords && cloud.newRecords.length > 0))) {
+      const localUpdates = getLocalData(STORAGE_KEY_UPDATES, {});
+      const localActivities = getLocalData(STORAGE_KEY_ACTIVITIES, {});
+      const localNewRecords = getLocalData(STORAGE_KEY_NEW, []);
+      const localDeleted = new Set(getLocalData(STORAGE_KEY_DELETED, []));
+
+      let hasNewData = false;
+
+      // 1. Merge updates
+      if (cloud.updates && typeof cloud.updates === 'object') {
+        Object.keys(cloud.updates).forEach((id) => {
+          localUpdates[id] = { ...(localUpdates[id] || {}), ...cloud.updates[id] };
+          hasNewData = true;
+        });
+        setLocalData(STORAGE_KEY_UPDATES, localUpdates);
+      }
+
+      // 2. Merge activities
+      if (cloud.activities && typeof cloud.activities === 'object') {
+        Object.keys(cloud.activities).forEach((id) => {
+          const cloudActs = Array.isArray(cloud.activities[id]) ? cloud.activities[id] : [];
+          const localActs = Array.isArray(localActivities[id]) ? localActivities[id] : [];
+          const actMap = new Map();
+          localActs.forEach((a) => actMap.set(a.id || (a.date + (a.text || '')), a));
+          cloudActs.forEach((a) => actMap.set(a.id || (a.date + (a.text || '')), a));
+          localActivities[id] = [...actMap.values()].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+          hasNewData = true;
+        });
+        setLocalData(STORAGE_KEY_ACTIVITIES, localActivities);
+      }
+
+      // 3. Merge new records
+      if (Array.isArray(cloud.newRecords)) {
+        cloud.newRecords.forEach((nr) => {
+          if (!localNewRecords.some((r) => r.id === nr.id) && !localDeleted.has(nr.id)) {
+            localNewRecords.push(nr);
+            hasNewData = true;
+          }
+        });
+        setLocalData(STORAGE_KEY_NEW, localNewRecords);
+      }
+
+      // 4. Merge deleted
+      if (Array.isArray(cloud.deletedIds)) {
+        cloud.deletedIds.forEach((id) => localDeleted.add(id));
+        setLocalData(STORAGE_KEY_DELETED, [...localDeleted]);
+      }
+
+      lastCloudSyncTime = new Date();
+      updateSyncBadgeUI('synced');
+      if (hasNewData) {
+        await loadCompanies(true);
+      }
+      if (!silent) showToast('Cloud synchronized with latest updates across devices.');
+    } else {
+      await pushCloudState();
+    }
+  } catch (e) {
+    console.warn('Sync cloud notice:', e.message);
+    updateSyncBadgeUI('offline');
+  } finally {
+    isSyncingCloud = false;
+  }
+}
+
 function getCompanyActivities(company) {
   if (!company) return [];
   if (Array.isArray(company.activities) && company.activities.length > 0) {
@@ -325,6 +467,8 @@ async function init() {
     await loadCompanies();
     setupEventListeners();
     setupActionCommandCenter();
+    // Auto-poll cloud state every 30 seconds for real-time multi-device sync
+    setInterval(() => syncCloudState(true), 30000);
   } catch (err) {
     showToast(err.message, true);
   }
@@ -364,7 +508,7 @@ function fillFilterSelect(select, options, defaultLabel) {
   if (options.includes(current)) select.value = current;
 }
 
-async function loadCompanies() {
+async function loadCompanies(skipCloudSync = false) {
   let serverList = [];
   try {
     serverList = await api('/api/companies');
@@ -380,6 +524,10 @@ async function loadCompanies() {
   el('hardwareScopeCount').textContent = `${companies.length} BESS Accounts Monitored`;
 
   renderAllViews();
+
+  if (!skipCloudSync) {
+    syncCloudState(true);
+  }
 }
 
 function renderAllViews() {
@@ -2756,6 +2904,7 @@ async function markActionCompleted(companyId) {
   } catch (err) {
     console.warn('API notice:', err.message);
   }
+  pushCloudState();
 }
 
 function openDailyBriefingModal() {
@@ -3308,6 +3457,7 @@ function addActivityToCompany(companyId, activityData, nextPlanData = null) {
   }).catch((err) => {
     console.warn('API sync notice (saved locally in browser):', err.message);
   });
+  pushCloudState();
 
   // 3. Update UI & re-render Daily Task lists
   renderDrawerActivityList(comp);
@@ -3351,6 +3501,7 @@ function deleteActivityFromCompany(companyId, actId) {
     method: 'PUT',
     body: JSON.stringify({ activities: comp.activities, notes: comp.notes }),
   }).catch(() => {});
+  pushCloudState();
 
   renderDrawerActivityList(comp);
   renderAllViews();
@@ -3392,6 +3543,190 @@ function setColumnPreset(presetName) {
     cb.checked = targetCols.includes(cb.value);
   });
   updateSelectedColCount();
+}
+
+async function downloadManagementExcel() {
+  showToast('Generating Complete Management Excel Report...');
+  const today = new Date().toISOString().split('T')[0];
+  const filename = `BESS_India_Management_Report_${today}.xlsx`;
+
+  // Try client-side generation using SheetJS if available
+  if (typeof XLSX !== 'undefined') {
+    try {
+      const records = companies && companies.length > 0 ? companies : [];
+
+      // 1. Executive Overview Sheet
+      const execRows = records.map((r, i) => {
+        const isConnected = (r.status === 'Connected' || r.status === 'Customer / Qualified')
+          ? 'YES (Connected)'
+          : (r.status === 'In Discussion' || r.status === 'Meeting Scheduled' || r.status === 'Sample / RFP')
+          ? 'IN DISCUSSION'
+          : (r.status === 'Contacted' || r.status === 'Outreach In Progress')
+          ? 'CONTACTED (Follow Up)'
+          : 'NO (Not Contacted)';
+
+        let activityList = Array.isArray(r.activities) ? r.activities : [];
+        if (typeof r.activities === 'string' && r.activities.trim().startsWith('[')) {
+          try { activityList = JSON.parse(r.activities); } catch (e) {}
+        }
+        const formattedActivities = activityList
+          .map((a) => `[${a.date || ''}] ${a.type || 'Activity'}: ${a.text || ''}`)
+          .join('\n');
+
+        const liters = Number(r.monthlyCoolantLiters) || 0;
+        const annualLiters = liters * 12;
+        const annualContainers = Math.round((annualLiters / 20000) * 10) / 10;
+
+        return {
+          'S.No': i + 1,
+          'Company / Customer Name': r.company || '',
+          'Category / Role': r.categoryOrRole || r.type || '',
+          'Location / State': r.location || '',
+          'Cooling Architecture': r.liquidCooling || 'Immersion Cooled',
+          'Project / Production Status': r.productionStage || 'Pilot / Prototype Stage',
+          'Connected Status': isConnected,
+          'Detailed Outreach Status': r.status || 'Not Contacted',
+          'Primary Contact Person': r.contactPerson || '—',
+          'Best Contact Number / Mobile': r.mobile || '—',
+          'Monthly Forecast (Liters/Mo)': liters,
+          'Annual Forecast (Liters/Yr)': annualLiters,
+          'Annual Est. Containers/Yr (~20kL)': annualContainers,
+          'Coolant Start Date (Tentative)': r.coolantStartDate || '—',
+          'Next Scheduled Work Plan': r.nextAction || '—',
+          'Next Action Target Date': r.nextActionDate || '—',
+          'Daily Course of Action & Activity Trail': formattedActivities || r.notes || '—',
+          'Strategic Notes & Intel': r.notes || '—',
+          'Priority': r.priority || 'Medium',
+          'Last Updated': r.lastUpdated || '',
+        };
+      });
+
+      const wsExec = XLSX.utils.json_to_sheet(execRows);
+      wsExec['!cols'] = [
+        { wch: 6 },  // S.No
+        { wch: 28 }, // Company
+        { wch: 26 }, // Category
+        { wch: 22 }, // Location
+        { wch: 22 }, // Cooling
+        { wch: 26 }, // Production Status
+        { wch: 20 }, // Connected Status
+        { wch: 18 }, // Detailed Status
+        { wch: 26 }, // Contact Person
+        { wch: 24 }, // Best Mobile
+        { wch: 18 }, // Monthly Liters
+        { wch: 18 }, // Annual Liters
+        { wch: 18 }, // Containers
+        { wch: 18 }, // Start Date
+        { wch: 34 }, // Next Action
+        { wch: 16 }, // Next Date
+        { wch: 55 }, // Activity Trail
+        { wch: 40 }, // Notes
+        { wch: 12 }, // Priority
+        { wch: 14 }, // Last Updated
+      ];
+
+      // 2. Daily Course of Action Trail Sheet
+      const actionTrailRows = [];
+      records.forEach((r) => {
+        let activityList = Array.isArray(r.activities) ? r.activities : [];
+        if (typeof r.activities === 'string' && r.activities.trim().startsWith('[')) {
+          try { activityList = JSON.parse(r.activities); } catch (e) {}
+        }
+        activityList.forEach((a) => {
+          actionTrailRows.push({
+            'Date': a.date || '',
+            'Company / Customer Name': r.company,
+            'Activity Type': a.type || 'Activity',
+            'Daily Course of Action & Discussion': a.text || '',
+            'Next Scheduled Work Plan': r.nextAction || '—',
+            'Next Action Target Date': r.nextActionDate || '—',
+            'Connected?': r.status === 'Connected' ? 'YES' : r.status,
+            'Key Contact Person': r.contactPerson || '—',
+            'Best Phone / WhatsApp': r.mobile || '—',
+            'Location': r.location || '',
+            'Cooling Type': r.liquidCooling || 'Immersion Cooled',
+          });
+        });
+      });
+      actionTrailRows.sort((a, b) => (b.Date || '').localeCompare(a.Date || ''));
+      const wsTrail = XLSX.utils.json_to_sheet(actionTrailRows);
+      wsTrail['!cols'] = [
+        { wch: 14 }, // Date
+        { wch: 28 }, // Company
+        { wch: 18 }, // Activity Type
+        { wch: 55 }, // Discussion
+        { wch: 34 }, // Next Action
+        { wch: 16 }, // Next Date
+        { wch: 16 }, // Connected
+        { wch: 26 }, // Contact
+        { wch: 24 }, // Phone
+        { wch: 20 }, // Location
+        { wch: 20 }, // Cooling Type
+      ];
+
+      // 3. Cooling Architecture & Forecast Summary Sheet
+      const coolingSummary = {};
+      records.forEach((r) => {
+        const arch = r.liquidCooling || 'Unspecified';
+        if (!coolingSummary[arch]) {
+          coolingSummary[arch] = { count: 0, monthlyLiters: 0, annualLiters: 0 };
+        }
+        const l = Number(r.monthlyCoolantLiters) || 0;
+        coolingSummary[arch].count += 1;
+        coolingSummary[arch].monthlyLiters += l;
+        coolingSummary[arch].annualLiters += (l * 12);
+      });
+
+      const summaryRows = Object.keys(coolingSummary).map((arch) => ({
+        'Cooling Architecture': arch,
+        'Total Indian Accounts': coolingSummary[arch].count,
+        'Total Monthly Demand (Liters/Mo)': coolingSummary[arch].monthlyLiters,
+        'Total Annual Demand (Liters/Yr)': coolingSummary[arch].annualLiters,
+        'Annual ISO Containers (~20kL)': Math.round((coolingSummary[arch].annualLiters / 20000) * 10) / 10,
+      }));
+      const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+      wsSummary['!cols'] = [
+        { wch: 26 },
+        { wch: 22 },
+        { wch: 26 },
+        { wch: 26 },
+        { wch: 24 },
+      ];
+
+      const outWb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(outWb, wsExec, 'Customer Overview & Forecast');
+      XLSX.utils.book_append_sheet(outWb, wsTrail, 'Daily Action Trail');
+      XLSX.utils.book_append_sheet(outWb, wsSummary, 'Coolant Demand by Architecture');
+
+      XLSX.writeFile(outWb, filename);
+      showToast('Management Excel report downloaded successfully!');
+      closeExportModal();
+      return;
+    } catch (err) {
+      console.warn('Client-side XLSX generation failed, falling back to server:', err);
+    }
+  }
+
+  // Fallback to server endpoint
+  try {
+    const res = await fetch('/api/export-management', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customData: companies }),
+    });
+    if (!res.ok) throw new Error('Management export request failed.');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Management Excel report downloaded successfully!');
+    closeExportModal();
+  } catch (err) {
+    showToast(`Download failed: ${err.message}`, true);
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -3771,13 +4106,25 @@ function setupEventListeners() {
     if (e.target.id === 'specModalBackdrop') el('specModalBackdrop').classList.add('hidden');
   });
 
-  // Sync Sheets
-  el('topSyncBtn').addEventListener('click', async () => {
+  // Dedicated Management Excel Download Buttons
+  el('downloadManagementExcelBtn')?.addEventListener('click', downloadManagementExcel);
+  el('modalInstantManagementExcelBtn')?.addEventListener('click', downloadManagementExcel);
+
+  // Cloud Sync click on status badge
+  el('cloudStatusContainer')?.addEventListener('click', () => {
+    syncCloudState(false);
+  });
+
+  // Sync Sheets & Cloud
+  el('topSyncBtn')?.addEventListener('click', async () => {
     try {
-      showToast('Syncing reference sheets from Excel...');
-      const res = await api('/api/sync', { method: 'POST' });
-      await loadCompanies();
-      showToast(res.added > 0 ? `Synced! Added ${res.added} new companies.` : 'Database is up to date.');
+      showToast('Synchronizing cloud data across devices...');
+      await syncCloudState(false);
+      const res = await api('/api/sync', { method: 'POST' }).catch(() => ({}));
+      if (res && res.added > 0) {
+        await loadCompanies();
+        showToast(`Synced! Added ${res.added} new companies.`);
+      }
     } catch (err) {
       showToast(err.message, true);
     }
@@ -3915,6 +4262,7 @@ function setupEventListeners() {
       }).catch((err) => {
         console.warn('API sync notice (stored locally):', err.message);
       });
+      pushCloudState();
     } else {
       // 1. New Company creation
       const newId = 'C' + String(Date.now()).slice(-4);
@@ -3942,6 +4290,7 @@ function setupEventListeners() {
       }).catch((err) => {
         console.warn('API sync notice (stored locally):', err.message);
       });
+      pushCloudState();
     }
   });
 
@@ -4019,6 +4368,7 @@ function setupEventListeners() {
     showToast(`Removed "${company.company}" from database.`);
 
     api(`/api/companies/${id}`, { method: 'DELETE' }).catch(() => {});
+    pushCloudState();
   });
 
   // Management Report Print & Copy

@@ -77,6 +77,20 @@ app.post('/api/export-simple', (req, res) => {
   }
 });
 
+app.all('/api/export-management', (req, res) => {
+  try {
+    const customData = req.method === 'POST' ? req.body?.customData : null;
+    const result = store.exportManagementBuffer(customData);
+    const today = new Date().toISOString().split('T')[0];
+    const filename = `BESS_India_Management_Report_${today}.xlsx`;
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', result.mime);
+    res.send(result.buffer);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
   app.listen(PORT, () => {
