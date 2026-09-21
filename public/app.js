@@ -3730,6 +3730,58 @@ async function downloadManagementExcel() {
 }
 
 // ---------------------------------------------------------------------
+// Full Screen Mode Controller
+// ---------------------------------------------------------------------
+
+function toggleFullScreen() {
+  const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+  if (!isFull) {
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen().catch(() => {});
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen();
+    } else if (docEl.mozRequestFullScreen) {
+      docEl.mozRequestFullScreen();
+    } else if (docEl.msRequestFullscreen) {
+      docEl.msRequestFullscreen();
+    }
+    showToast('Entering Full Screen Mode');
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+    showToast('Exited Full Screen Mode');
+  }
+}
+
+function updateFullScreenUI() {
+  const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+  const icon = el('fullscreenIcon');
+  const text = el('fullscreenText');
+  const btn = el('toggleFullscreenBtn');
+
+  if (icon) {
+    icon.textContent = isFull ? 'fullscreen_exit' : 'fullscreen';
+  }
+  if (text) {
+    text.textContent = isFull ? 'Exit Full' : 'Full Screen';
+  }
+  if (btn) {
+    btn.title = isFull ? 'Exit Full Screen Mode (Esc / F)' : 'Toggle Full Screen Mode (F / Click)';
+    btn.classList.toggle('border-cyan-400', isFull);
+    btn.classList.toggle('text-cyan-300', isFull);
+    btn.classList.toggle('bg-cyan-950/60', isFull);
+  }
+}
+
+// ---------------------------------------------------------------------
 // Setup Event Listeners
 // ---------------------------------------------------------------------
 
@@ -4127,6 +4179,24 @@ function setupEventListeners() {
       }
     } catch (err) {
       showToast(err.message, true);
+    }
+  });
+
+  // Full Screen Toggle & Listeners
+  el('toggleFullscreenBtn')?.addEventListener('click', toggleFullScreen);
+  document.addEventListener('fullscreenchange', updateFullScreenUI);
+  document.addEventListener('webkitfullscreenchange', updateFullScreenUI);
+  document.addEventListener('mozfullscreenchange', updateFullScreenUI);
+  document.addEventListener('MSFullscreenChange', updateFullScreenUI);
+
+  // Keyboard shortcut 'F' to toggle Full Screen (when not typing in form field)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'f' || e.key === 'F') {
+      const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      if (tag !== 'input' && tag !== 'textarea' && tag !== 'select' && !document.activeElement?.isContentEditable) {
+        e.preventDefault();
+        toggleFullScreen();
+      }
     }
   });
 
