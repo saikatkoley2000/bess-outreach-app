@@ -15,25 +15,25 @@ const STORAGE_KEYS = {
 };
 
 export function AppProvider({ children }) {
-  // Authentication State
+  const defaultUser = {
+    name: 'Savita BD Team',
+    email: 'commercial.bd@savita.com',
+    role: 'Specialty Fluids & BESS Division',
+    department: 'Commercial BD'
+  };
+
+  // Public Session State - No login required
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.name === 'Savita BD Team') return parsed;
+        if (parsed && parsed.name) return parsed;
       }
     } catch (e) {
       console.error(e);
     }
-    // Default authorized Savita commercial session
-    return {
-      name: 'Savita BD Team',
-      email: 'commercial.bd@savita.com',
-      role: 'Authorized Internal Access',
-      department: 'Specialty Fluids & BESS Division',
-      authenticatedAt: new Date().toISOString()
-    };
+    return defaultUser;
   });
 
   // Navigation state
@@ -581,7 +581,7 @@ export function AppProvider({ children }) {
   };
 
   const logout = () => {
-    setCurrentUser(null);
+    setCurrentUser(defaultUser);
   };
 
   // Reset all local storage changes back to blank workbook defaults

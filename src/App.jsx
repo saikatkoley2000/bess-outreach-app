@@ -1,7 +1,6 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import Header from './components/Header';
-import AuthModal from './components/AuthModal';
 import Dashboard from './components/Dashboard';
 import CompanyDirectory from './components/CompanyDirectory';
 import OpportunityPipeline from './components/OpportunityPipeline';
@@ -46,9 +45,6 @@ function MainContent() {
 
       {/* 360° Company Drill-Down Modal */}
       <CompanyDetailModal />
-
-      {/* Restricted Authentication Modal (if logged out) */}
-      <AuthModal />
     </div>
   );
 }

@@ -9,7 +9,6 @@ import {
   ListTodo,
   Download,
   User,
-  LogOut,
   RotateCcw,
   Shield,
   ChevronDown,
@@ -209,19 +208,6 @@ export default function Header() {
                       >
                         <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
                         <span>Reset Edits to Excel Defaults</span>
-                      </button>
-                    </div>
-
-                    <div className="pt-1 border-t border-slate-100">
-                      <button
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          logout();
-                        }}
-                        className="w-full text-left px-4 py-2 hover:bg-rose-50 flex items-center gap-2 text-rose-600 font-semibold cursor-pointer"
-                      >
-                        <LogOut className="w-3.5 h-3.5" />
-                        <span>Sign Out / Restrict Access</span>
                       </button>
                     </div>
                   </div>
