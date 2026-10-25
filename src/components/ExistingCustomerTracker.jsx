@@ -156,6 +156,8 @@ export default function ExistingCustomerTracker() {
                     ? 'Immersion Coolant (Synthetic & Natural Ester)'
                     : isAmpereHour
                     ? 'BESS Commercial Regular Supply'
+                    : account.company_name?.toLowerCase().includes('good enough')
+                    ? 'Connected >10 Months — Supplying EG50 Shortly'
                     : 'Active Commercial Regular Supply'}
                 </p>
                 <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-2">
@@ -216,10 +218,14 @@ export default function ExistingCustomerTracker() {
                   Supplied Thermal Products
                 </span>
                 <p className="font-extrabold text-slate-900 text-sm">
-                  {activeEngagement.immersion || activeCustomer.immersion_sample_status || 'Immersion & Specialty Coolants'}
+                  {activeCustomer.company_name?.toLowerCase().includes('good enough')
+                    ? 'QuantiCool EG50 Coolant (Supply Starting Shortly)'
+                    : (activeEngagement.immersion || activeCustomer.immersion_sample_status || 'Immersion & Specialty Coolants')}
                 </p>
                 <span className="text-[10px] text-emerald-700 font-semibold block mt-1">
-                  Active regular manufacturing shipments
+                  {activeCustomer.company_name?.toLowerCase().includes('good enough')
+                    ? 'Connected >10 Months — Commercial Supply Commencing Shortly'
+                    : 'Active regular manufacturing shipments'}
                 </span>
               </div>
 
