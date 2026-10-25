@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   ArrowRight,
   TrendingUp,
-  ShieldAlert,
   ChevronRight,
   Sparkles,
   Info,
@@ -119,24 +118,6 @@ export default function Dashboard() {
               Directory (176)
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Critical Commercial Qualification Discipline Alert */}
-      <div className="bg-amber-50/90 border border-amber-300/80 rounded-2xl p-4.5 shadow-xs flex items-start gap-4">
-        <div className="p-2 rounded-xl bg-amber-100 text-amber-800 shrink-0 mt-0.5">
-          <ShieldAlert className="w-5 h-5 text-amber-700" />
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900">
-              Commercial Qualification Discipline Protocol
-            </h4>
-            <span className="text-[11px] font-semibold text-amber-700">Strict Governance Rule</span>
-          </div>
-          <p className="text-xs text-amber-900/90 mt-1 leading-relaxed">
-            <strong>Do not treat unverified prospects as confirmed coolant customers.</strong> A sample dispatched or testing in progress does <em>NOT</em> constitute formal technical sign-off, approved OEM specification, or recurring commercial demand. Potential coolant volumes and revenues remain intentionally blank until documented engineering approval and confirmed procurement quantities are secured.
-          </p>
         </div>
       </div>
 
