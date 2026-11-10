@@ -155,7 +155,7 @@ export default function ExistingCustomerTracker() {
                   {isCleanElectric
                     ? 'Immersion Coolant (Synthetic & Natural Ester)'
                     : isAmpereHour
-                    ? 'BESS Commercial Regular Supply'
+                    ? 'QuantiCool EG50 Commercial Regular Supply'
                     : 'Active Commercial Regular Supply'}
                 </p>
                 <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-2">
@@ -216,7 +216,11 @@ export default function ExistingCustomerTracker() {
                   Supplied Thermal Products
                 </span>
                 <p className="font-extrabold text-slate-900 text-sm">
-                  {activeEngagement.immersion || activeCustomer.immersion_sample_status || 'Immersion & Specialty Coolants'}
+                  {isAmpereHour
+                    ? 'QuantiCool EG50 (Water / Ethylene Glycol 50:50)'
+                    : isCleanElectric
+                    ? 'QuantiCool Synthetic & Natural Ester Immersion Coolants'
+                    : (activeEngagement.regular_supply || activeCustomer.eg50_fit || activeCustomer.immersion_fit || 'Immersion & Specialty Coolants')}
                 </p>
                 <span className="text-[10px] text-emerald-700 font-semibold block mt-1">
                   Active regular manufacturing shipments

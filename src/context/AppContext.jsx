@@ -157,9 +157,29 @@ export function AppProvider({ children }) {
   const accounts = useMemo(() => {
     return rawMasterData.Accounts.map(acc => {
       const override = accountOverrides[acc.account_id] || {};
+      
+      const priority = override.priority !== undefined ? override.priority : acc.priority;
+      const score = override.research_score_100 !== undefined && override.research_score_100 !== ''
+        ? override.research_score_100
+        : (acc.research_score_100 !== undefined && acc.research_score_100 !== '' ? acc.research_score_100 : 0);
+      const coolantFitType = override.coolant_fit_type !== undefined 
+        ? override.coolant_fit_type 
+        : (acc.coolant_fit_type || 'Both');
+
+      const isConnectedDefault = (acc.connected_yn !== undefined && acc.connected_yn !== '')
+        ? acc.connected_yn
+        : (acc.met_status && acc.met_status.toLowerCase().includes('met') ? 'Y' : 'N');
+      const connectedYn = override.connected_yn !== undefined ? override.connected_yn : isConnectedDefault;
+      const discussionPoints = override.discussion_points_to_track !== undefined ? override.discussion_points_to_track : (acc.discussion_points_to_track || '');
+
       return {
         ...acc,
         ...override,
+        priority: priority,
+        research_score_100: score,
+        coolant_fit_type: coolantFitType,
+        connected_yn: connectedYn,
+        discussion_points_to_track: discussionPoints,
         account_owner_edit: override.account_owner_edit !== undefined ? override.account_owner_edit : (acc.account_owner_edit || ''),
         followup_due_date_edit: override.followup_due_date_edit !== undefined ? override.followup_due_date_edit : (acc.followup_due_date_edit || '')
       };

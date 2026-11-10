@@ -28,6 +28,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { getCompanyWebsiteUrl, getCompanyDisplayDomain } from '../utils/companyUtils';
 
 export default function CompanyDetailModal() {
   const {
@@ -67,6 +68,7 @@ export default function CompanyDetailModal() {
         cooling_or_product_evidence: data.account.cooling_or_product_evidence || '',
         eg50_fit: data.account.eg50_fit || '',
         immersion_fit: data.account.immersion_fit || '',
+        coolant_fit_type: data.account.coolant_fit_type || 'Both',
         eg50_sample_status: data.account.eg50_sample_status || 'No recorded sample',
         immersion_sample_status: data.account.immersion_sample_status || 'No recorded sample',
         regular_supply_status: data.account.regular_supply_status || 'None',
@@ -81,7 +83,9 @@ export default function CompanyDetailModal() {
         primary_email: data.account.primary_email || '',
         address: data.account.address || '',
         website: data.account.website || '',
-        research_score_100: data.account.research_score_100 || 50,
+        research_score_100: data.account.research_score_100 !== undefined && data.account.research_score_100 !== '' ? Number(data.account.research_score_100) : 50,
+        connected_yn: data.account.connected_yn || 'N',
+        discussion_points_to_track: data.account.discussion_points_to_track || '',
         account_owner_edit: data.account.account_owner_edit || '',
         followup_due_date_edit: data.account.followup_due_date_edit || ''
       });
@@ -206,6 +210,35 @@ export default function CompanyDetailModal() {
               <p className="text-emerald-100 text-xs mt-1">
                 {formData.business_role || account.business_role || 'BESS / EV Battery OEM'} • Source: {account.event || 'Battery Show India 2026'}
               </p>
+
+              {/* Direct Company Website & Evidence Quick Links */}
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
+                <a
+                  href={getCompanyWebsiteUrl(account)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-950 font-bold text-xs transition-all shadow-sm group/web cursor-pointer"
+                  title={`Open official company website: ${getCompanyWebsiteUrl(account)}`}
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-[#007A3D] group-hover/web:translate-x-0.5 transition-transform" />
+                  <span>Visit Company Website</span>
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    ({getCompanyDisplayDomain(account)})
+                  </span>
+                </a>
+                {account.evidence_url_1 && (
+                  <a
+                    href={account.evidence_url_1}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/40 hover:bg-emerald-950/60 text-emerald-200 border border-emerald-400/40 text-xs font-semibold transition-all cursor-pointer"
+                    title="View Public Thermal/Cooling Product Evidence"
+                  >
+                    <span>Product Evidence</span>
+                    <ExternalLink className="w-3 h-3 text-emerald-300" />
+                  </a>
+                )}
+              </div>
             </div>
 
             {/* Overall Research Score Gauge */}
@@ -389,6 +422,22 @@ export default function CompanyDetailModal() {
                   <FlaskConical className="w-4 h-4 text-[#005A9C]" />
                   2. Thermal Fluid Suitability & Sample Status
                 </h4>
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
+                  <div>
+                    <span className="font-bold text-slate-800 block text-xs">Primary Coolant Fit Category</span>
+                    <span className="text-[10px] text-slate-500">Select whether this OEM fits EG50, Immersion, Both, or Others</span>
+                  </div>
+                  <select
+                    value={formData.coolant_fit_type || 'Both'}
+                    onChange={(e) => handleFieldChange('coolant_fit_type', e.target.value)}
+                    className="p-2 rounded-lg border border-slate-300 bg-white font-bold text-xs text-[#007A3D] focus:ring-2 focus:ring-[#007A3D]"
+                  >
+                    <option value="Both">Both (EG50 & Immersion)</option>
+                    <option value="EG50">EG50</option>
+                    <option value="Immersion">Immersion</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div className="bg-white p-3.5 rounded-xl border border-emerald-200 space-y-2">
                     <span className="font-bold text-emerald-950 block text-[11px]">EG50 Fluid (Water-Glycol Cold Plates)</span>
@@ -583,18 +632,23 @@ export default function CompanyDetailModal() {
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
                 <h4 className="font-black text-xs text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-blue-600" />
-                  5. Commercial BD Responsibility
+                  5. Commercial Connection & Follow-up Tracking
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Assigned BD Owner</label>
-                    <input
-                      type="text"
-                      value={formData.account_owner_edit}
-                      onChange={(e) => handleFieldChange('account_owner_edit', e.target.value)}
-                      placeholder="e.g. BD Owner Name..."
-                      className="w-full p-2 rounded-lg border border-slate-300 bg-white font-medium"
-                    />
+                    <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Connected with them? (Y/N)</label>
+                    <select
+                      value={formData.connected_yn}
+                      onChange={(e) => handleFieldChange('connected_yn', e.target.value)}
+                      className={`w-full p-2 rounded-lg border font-bold text-xs ${
+                        formData.connected_yn === 'Y'
+                          ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
+                          : 'border-slate-300 bg-white text-slate-700'
+                      }`}
+                    >
+                      <option value="Y">Y (Yes - Connected)</option>
+                      <option value="N">N (No - Not Connected)</option>
+                    </select>
                   </div>
 
                   <div>
@@ -604,6 +658,17 @@ export default function CompanyDetailModal() {
                       value={formData.followup_due_date_edit}
                       onChange={(e) => handleFieldChange('followup_due_date_edit', e.target.value)}
                       className="w-full p-2 rounded-lg border border-slate-300 bg-white font-medium"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Discussion Points to Track in future</label>
+                    <textarea
+                      rows={3}
+                      value={formData.discussion_points_to_track}
+                      onChange={(e) => handleFieldChange('discussion_points_to_track', e.target.value)}
+                      placeholder="Enter detailed meeting notes, key discussion points, customer requirements, or future follow-up agenda..."
+                      className="w-full p-2.5 rounded-lg border border-slate-300 bg-white font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007A3D]"
                     />
                   </div>
                 </div>
@@ -735,28 +800,43 @@ export default function CompanyDetailModal() {
                     </div>
                   </div>
 
-                  {/* Account Ownership & Follow-up Due Date */}
+                  {/* Connection Tracking, Follow-up & Discussion Points */}
                   <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-extrabold text-xs text-slate-800 uppercase tracking-wider">
-                        Sales Ownership & Follow-Up Schedule
+                        Connection Status & Discussion Tracking
                       </h4>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                       <div>
                         <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
-                          Assigned Account Owner
+                          Connected with them? (Y/N)
                         </label>
-                        <input
-                          type="text"
-                          value={account.account_owner_edit || ''}
-                          onChange={(e) => {
-                            updateAccount(account.account_id, { account_owner_edit: e.target.value });
-                          }}
-                          placeholder="e.g. Account Owner / BD Assignee..."
-                          className="w-full p-2.5 rounded-lg border border-slate-300 bg-white font-medium"
-                        />
+                        <div className="flex items-center gap-2 mt-1">
+                          <button
+                            type="button"
+                            onClick={() => updateAccount(account.account_id, { connected_yn: 'Y' })}
+                            className={`px-3 py-1.5 text-xs font-black rounded-lg border transition-all cursor-pointer ${
+                              account.connected_yn === 'Y'
+                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                            }`}
+                          >
+                            ✓ Yes (Connected)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => updateAccount(account.account_id, { connected_yn: 'N' })}
+                            className={`px-3 py-1.5 text-xs font-black rounded-lg border transition-all cursor-pointer ${
+                              account.connected_yn !== 'Y'
+                                ? 'bg-rose-500 text-white border-rose-500 shadow-xs'
+                                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                            }`}
+                          >
+                            ✗ No (Not Connected)
+                          </button>
+                        </div>
                       </div>
 
                       <div>
@@ -772,30 +852,61 @@ export default function CompanyDetailModal() {
                           className="w-full p-2 rounded-lg border border-slate-300 bg-white font-medium text-slate-700"
                         />
                       </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
+                          Discussion Points to Track in future
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={account.discussion_points_to_track || ''}
+                          onChange={(e) => {
+                            updateAccount(account.account_id, { discussion_points_to_track: e.target.value });
+                          }}
+                          placeholder="Type key discussion points, customer requirements, or future follow-up agenda..."
+                          className="w-full p-2.5 rounded-lg border border-slate-300 bg-white font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007A3D]"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* Company Contact & Address details */}
-                  <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                      Registered / Operating Address
-                    </span>
-                    <p className="text-slate-800 font-medium">
-                      {account.address || 'Address not captured on business card'}
-                    </p>
-                    {account.website && (
-                      <div className="pt-2">
+                  <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs space-y-3">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                        Registered / Operating Address
+                      </span>
+                      <p className="text-slate-800 font-medium">
+                        {account.address || 'Address not captured on business card'}
+                      </p>
+                    </div>
+
+                    <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold uppercase text-slate-400">Official Website:</span>
                         <a
-                          href={account.website.startsWith('http') ? account.website : `https://${account.website}`}
+                          href={getCompanyWebsiteUrl(account)}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-[#005A9C] font-bold hover:underline"
+                          className="inline-flex items-center gap-1 text-[#005A9C] font-bold hover:underline font-mono"
                         >
-                          <span>{account.website}</span>
+                          <span>{getCompanyWebsiteUrl(account)}</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       </div>
-                    )}
+
+                      {account.evidence_url_1 && (
+                        <a
+                          href={account.evidence_url_1}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[#007A3D] font-bold hover:underline"
+                        >
+                          <span>BESS Product Evidence Source</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

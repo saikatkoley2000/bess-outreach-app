@@ -86,7 +86,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
       {/* Top Bar: Brand, Identity, User & Export */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1720px] mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Corporate Title */}
           <div className="flex items-center gap-3">
@@ -220,7 +220,7 @@ export default function Header() {
 
       {/* Navigation Tab Bar */}
       <div className="bg-slate-50/80 border-t border-slate-200/80 backdrop-blur-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1720px] mx-auto px-3 sm:px-4 lg:px-6">
           <nav className="flex space-x-1 sm:space-x-2 overflow-x-auto py-2 scrollbar-none" aria-label="Tabs">
             {navItems.map((item) => {
               const Icon = item.icon;

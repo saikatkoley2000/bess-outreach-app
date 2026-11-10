@@ -25,7 +25,8 @@ export function exportAccountsToExcel(accounts, filename = 'Savita_QuantiCool_Ac
     'EG50 Sample Status': acc.eg50_sample_status,
     'Immersion Sample Status': acc.immersion_sample_status,
     'Regular Supply Status': acc.regular_supply_status,
-    'Sales Owner': acc.account_owner_edit || '',
+    'Connected (Y/N)': acc.connected_yn || 'N',
+    'Discussion Points to Track': acc.discussion_points_to_track || '',
     'Follow-up Due Date': acc.followup_due_date_edit || '',
     'Website': acc.website
   }));
