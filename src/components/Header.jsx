@@ -118,16 +118,16 @@ export default function Header() {
 
           {/* Action buttons & User Menu */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Switch to Main App (Daily Activity) */}
+            {/* Switch to Main App (Daily Activity & Operational BESS Outreach) */}
             <a
               href="https://bess-outreach-4kjkcvvhv-saikatkoley2000s-projects.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-xs border border-emerald-300 transition-colors shadow-sm"
-              title="Open Daily Activity & Outreach Tracker (Main App)"
+              title="Open QuantiCool — Daily Activity & Operational BESS Outreach (Main App)"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="hidden md:inline">Main App: Daily Activity</span>
+              <span className="hidden md:inline">Main App: Daily Activity &amp; Operations</span>
               <span className="md:hidden">Main App</span>
             </a>
 
