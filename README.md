@@ -1,6 +1,10 @@
-# BESS Outreach Tracker (QuantiCool)
+# QuantiCool BESS — Daily Activity & Operational Outreach Tracker (Main App)
 
-A high-density industrial telemetry web application for BESS manufacturer outreach, commercial qualification, and dielectric fluid market intelligence — built directly on top of your `BESS_Company_Contacts_Updated1.xlsx` file.
+The primary daily operations web application for BESS manufacturer outreach, daily activity logging, action agenda tracking, and commercial telemetry — connected directly to `BESS_Company_Contacts_Updated1.xlsx`.
+
+> **Two-App Setup:**
+> - **Main App (Daily Activity & Operations):** Tracks daily outreach activities, today's action agenda radar, Excel-backed status updates, and operational tasks.
+> - **Supporting App (Customer Follow-Up & BD Intelligence):** [https://bess-outreach-app.vercel.app/](https://bess-outreach-app.vercel.app/) — dedicated to new customer prospecting, sample qualification tracking, and commercial BD follow-up.
 
 **Design System:** Built faithfully to match the [Stitch Industrial Engineering Precision design](https://stitch.withgoogle.com/projects/12796647182430103776).
 
