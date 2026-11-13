@@ -187,7 +187,9 @@ export function AppProvider({ children }) {
         ? acc.connected_yn
         : (acc.met_status && acc.met_status.toLowerCase().includes('met') ? 'Y' : 'N');
       const connectedYn = override.connected_yn !== undefined ? override.connected_yn : isConnectedDefault;
-      const discussionPoints = override.discussion_points_to_track !== undefined ? override.discussion_points_to_track : (acc.discussion_points_to_track || '');
+      const discussionPoints = (override.discussion_points_to_track !== undefined && override.discussion_points_to_track.trim() !== '')
+        ? override.discussion_points_to_track
+        : (acc.discussion_points_to_track || '');
 
       return {
         ...acc,

@@ -222,7 +222,7 @@
       "review_date": "2026-10-25",
       "privacy_level": "Internal — contact details included",
       "coolant_fit_type": "Both",
-      "discussion_points_to_track": ""
+      "discussion_points_to_track": "[2026-11-06] [Meeting / Visit]: Battery Show: Mr. Elan and Saikat held one-to-one meetings with Mr. Somashekhar S (VP – SCM, BESS), Mr. Basavaraja B R (VP – Engineering) and Mr. Mahendra Anil Sengar (GM – Engineering). Strong senior-level relationship.\n\n[2026-11-06] [Note / Update]: Chemtech 3rd-party test results still pending — lab cites equipment breakdown, no date committed. In parallel developing a new product for Lineage in place of the existing grade. Order to be requested once test results and new product are confirmed. FY27 volume depends on test results and new-product approval.\n\n[2026-11-06] [PO & Payment]: Regular orders for bioTRANSOL natural ester: 30 barrels in the last month; running requirement ~25–30 barrels/month. QuantiCool immersion (Q105) FY27 target: 20.\n\n[2026-11-06] [Note / Update]: Marine application: likely to place a 1-drum sample order for Transol Synth 100 shortly.\n\n[2026-11-06] [Note / Update]: Quality issue reported on the low-viscosity synthetic ester supplied for their EV bus application. May need to replace this oil completely — issue to be closed."
     },
     {
       "account_id": "ACC-0004",
@@ -561,7 +561,7 @@
       "met_status": "Met / business card captured",
       "account_bucket": "Prospect",
       "priority": "A",
-      "relationship_stage": "Cold / qualify",
+      "relationship_stage": "In Discussion",
       "business_role": "Pune BESS battery-pack manufacturer / EPC integrator",
       "application_segments": "BESS / EV / specialty — qualify",
       "cooling_or_product_evidence": "2.5 GWh Phase-I assembly line completed at SUPA MIDC Aug 2026; 1 GWh NTPC award May 2026; 104.4 kWh battery pack passed tests Sept 2026; liquid cooling and glycol SPEC NOT FOUND.",
@@ -569,12 +569,12 @@
       "immersion_fit": "Not applicable",
       "suggested_offer": "EG50/ only if Energy Vault B-VAULT platform uses and approves aqueous coolant; immersion R&D only.",
       "procurement_qualification_gate": "B-VAULT technology-license design owner Energy Vault; confirm SPML vs Energy Vault vs chiller OEM purchasing and approval.",
-      "next_action": "Meet Mukesh Bhagwat Chothave and request introduction to Samir Patel/Parag Patil BESS engineering; get B-VAULT thermal-fluid specs and Pune sample/test protocol.",
+      "next_action": "Resend mail to Mr. Samir Patel for his technical team; arrange EG50 sample by end-November",
       "website": "www.spml.co.in",
-      "primary_contact_name": "Mukesh Bhagwat Chothave",
-      "primary_contact_title": "Deputy Manager",
-      "primary_email": "mukesh.chothave@spml.co.in",
-      "primary_mobile": "+91 82375 68481",
+      "primary_contact_name": "Samir Patel",
+      "primary_contact_title": "Chief of Technology and Operations",
+      "primary_email": "coto.bess@spml.co.in",
+      "primary_mobile": "+91 62923 26680",
       "address": "22, Camac Street, Block - A, 3rd Floor, Kolkata - 700 016",
       "original_card_numbers": "130",
       "contact_count": 1,
@@ -584,9 +584,9 @@
       "scale_5": 5,
       "timing_5": 5,
       "research_score_100": 70,
-      "eg50_sample_status": "No recorded sample",
+      "eg50_sample_status": "Sample requested (end-Nov 2026)",
       "immersion_sample_status": "No recorded sample",
-      "regular_supply_status": "Not confirmed",
+      "regular_supply_status": "In Discussion",
       "research_evidence_grade": "OFFICIAL project/technology + dated industry reporting",
       "evidence_url_1": "https://www.spml.co.in/our-business/bess",
       "evidence_url_2": "https://www.tndindia.com/spml-infra-completes-first-phase-of-bess-manufacturing-facility/",
@@ -594,11 +594,12 @@
       "exclusion_reason": "",
       "evidence_caution": "MANUFACTURING VERIFIED; COOLANT ARCHITECTURE UNKNOWN",
       "account_owner_edit": "",
-      "followup_due_date_edit": "",
+      "followup_due_date_edit": "2026-11-25",
       "review_date": "2026-10-25",
       "privacy_level": "Internal — contact details included",
       "coolant_fit_type": "EG50",
-      "discussion_points_to_track": ""
+      "discussion_points_to_track": "[2026-11-06] [Phone Call]: Spoke with Mr. Samir Patel (Chief of Technology and Operations). He received our mail and asked us to resend it so he can forward to his technical team. Needs a sample by end-November — arranging accordingly. On track – sample stage (FY27 target 5).\n\n[2026-09-22] [Phone Call]: In November they will take sample\n\n[2026-09-15] [Phone Call]: Introduction Mail send at Coto.bess@spml.co.in\n\n[2026-09-29] [Phone Call]: Sending Details in Mail\n\n[2026-09-14] [Note / Update]: Samir was introduced as the technology and operations lead, while Subhankar posted a request for cell contact system suppliers.\r\nDr. Rathore discussed a 5 GWh automated line and shared news of a 1,000 MWh NTPC order.\r\nThe chat also reports a locally developed 104.4 kWh battery pack.\r\nPotential outreach angle: request the thermal-management or procurement owner for local BESS assembly and establish who approves the coolant.",
+      "connected_yn": "Y"
     },
     {
       "account_id": "ACC-0012",
@@ -692,7 +693,7 @@
       "review_date": "2026-10-25",
       "privacy_level": "Internal — contact details included",
       "coolant_fit_type": "Both",
-      "discussion_points_to_track": ""
+      "discussion_points_to_track": "[2026-11-06] [Meeting / Visit]: Battery Show: met Mr. Kaushik Tanti (COO); positive discussion with Replus management. Replus to send their materials shortly for compatibility testing. Evaluating both our liquid-cooling (cold plate) coolant and immersion coolant — possible second product opportunity. Timing depends on their internal testing, which will take some time."
     },
     {
       "account_id": "ACC-0130",
@@ -1351,7 +1352,7 @@
       "privacy_level": "Internal — contact details included",
       "pg25_fit": "Technical alternative if specified",
       "coolant_fit_type": "EG50",
-      "discussion_points_to_track": ""
+      "discussion_points_to_track": "[2026-11-06] [Note / Update]: Supplying regularly against their orders as per requirement. On track; no action pending (FY27 target 12)."
     },
     {
       "account_id": "ACC-0176",
@@ -4550,7 +4551,7 @@
       "review_date": "2026-10-25",
       "privacy_level": "Internal — contact details included",
       "coolant_fit_type": "EG50",
-      "discussion_points_to_track": ""
+      "discussion_points_to_track": "[2026-11-06] [Phone Call]: Mr. Amit Lalani (Procurement): sample needed in Dec 2026 / Jan 2027 as their production plan has been delayed. FY27 volume depends on revised production timeline."
     },
     {
       "account_id": "ACC-0055",
@@ -11685,6 +11686,52 @@
       "email": "Shreyas.u@simpleenergy.in",
       "city": "Bengaluru",
       "notes": "Issued NDA reference file to Saikat Koley for proceeding with commercial coolant discussions"
+    },
+    {
+      "contact_id": "CON-0130-B",
+      "account_id": "ACC-0011",
+      "original_contact_no": 130,
+      "scanned_at": "06 Nov 2026",
+      "full_name": "Samir Patel",
+      "job_title": "Chief of Technology and Operations",
+      "company_on_card": "SPML Infra Limited",
+      "department": "Technology & Operations",
+      "segment": "BESS",
+      "mobile": "+91 62923 26680",
+      "office_phone": "",
+      "fax": "",
+      "other_phone": "",
+      "email": "coto.bess@spml.co.in",
+      "website": "www.spml.co.in",
+      "office_address": "Pune / Kolkata",
+      "card_notes": "Key technical decision maker for BESS assembly and coolant qualification.",
+      "engagement_context": "Phone outreach / 2026-11-06 call",
+      "data_quality_flag": "",
+      "visibility": "Restricted — personal contact data",
+      "linkedin_profile_url": ""
+    },
+    {
+      "contact_id": "CON-0130-C",
+      "account_id": "ACC-0011",
+      "original_contact_no": 130,
+      "scanned_at": "14 Sep 2026",
+      "full_name": "Subhankar",
+      "job_title": "BESS Integrator Team",
+      "company_on_card": "SPML Infra Limited",
+      "department": "Engineering / Integration",
+      "segment": "BESS",
+      "mobile": "+91 83369 17680",
+      "office_phone": "",
+      "fax": "",
+      "other_phone": "",
+      "email": "",
+      "website": "www.spml.co.in",
+      "office_address": "Pune",
+      "card_notes": "Posted request for cell contact system suppliers.",
+      "engagement_context": "BESS integrator team",
+      "data_quality_flag": "",
+      "visibility": "Restricted — personal contact data",
+      "linkedin_profile_url": ""
     }
   ],
   "Opportunities": [
@@ -15427,6 +15474,17 @@
       "unverified_fields": "Exact pack fluid chemistry requirements pending NDA",
       "source_url": "https://www.simpleenergy.in",
       "as_of_date": "2026-10-26"
+    },
+    {
+      "engagement_id": "ENG-0011",
+      "account_id": "ACC-0011",
+      "company_name": "SPML Infra Limited",
+      "status": "In Discussion / Active Sample Request",
+      "confirmed_by": "Samir Patel (Chief of Technology and Operations)",
+      "relationship_notes": "[2026-11-06] [Phone Call]: Spoke with Mr. Samir Patel (Chief of Technology and Operations). He received our mail and asked us to resend it so he can forward to his technical team. Needs a sample by end-November — arranging accordingly. On track – sample stage (FY27 target 5).",
+      "next_technical_step": "Resend technical specs and send EG50 sample for technical team evaluation by end-November 2026.",
+      "next_commercial_step": "Follow up with procurement/tech team on 2026-11-25.",
+      "engagement_date": "2026-11-06"
     }
   ],
   "Actions": [
@@ -15599,12 +15657,12 @@
       "relationship_stage": "Cold / qualify",
       "owner_edit": "",
       "action_type": "Account qualification / follow-up",
-      "action_description": "Meet Mukesh Bhagwat Chothave and request introduction to Samir Patel/Parag Patil BESS engineering; get B-VAULT thermal-fluid specs and Pune sample/test protocol.",
-      "due_date_edit": "",
-      "status_edit": "Not started",
+      "action_description": "Resend mail to Mr. Samir Patel for his technical team; arrange EG50 sample by end-November",
+      "due_date_edit": "2026-11-25",
+      "status_edit": "In progress",
       "success_criterion": "Named technical buyer + approved coolant requirement / next documented decision",
       "source_context": "contact register",
-      "notes": "MANUFACTURING VERIFIED; COOLANT ARCHITECTURE UNKNOWN"
+      "notes": "[2026-11-06] [Phone Call]: Spoke with Mr. Samir Patel (Chief of Technology and Operations). Needs a sample by end-November — arranging accordingly."
     },
     {
       "action_id": "ACT-0012",
