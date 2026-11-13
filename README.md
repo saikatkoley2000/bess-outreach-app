@@ -1,4 +1,4 @@
-# QuantiCool BESS — Daily Activity & Operational Outreach Tracker (Main App)
+# QuantiCool — Daily Activity & Operational BESS Outreach (Main App)
 
 The primary daily operations web application for BESS manufacturer outreach, daily activity logging, action agenda tracking, and commercial telemetry — connected directly to `BESS_Company_Contacts_Updated1.xlsx`.
 
