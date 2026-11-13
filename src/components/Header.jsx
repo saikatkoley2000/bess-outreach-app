@@ -104,20 +104,33 @@ export default function Header() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 hidden lg:inline">
-                  Commercial BD Portal
+                  Customer Follow-Up &amp; BD Portal
                 </span>
-                <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-[#005A9C] border border-blue-200">
-                  <Shield className="w-3 h-3 text-[#005A9C]" /> Confidential BD Access
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                  <Shield className="w-3 h-3 text-amber-600" /> SUPPORTING APP • CUSTOMER FOLLOW-UP
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
-                Unified Battery Energy Storage & EV Thermal Management Intelligence
+                New Customer Prospecting • Sample Qualification Testing • BD Follow-up
               </p>
             </div>
           </div>
 
           {/* Action buttons & User Menu */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Switch to Main App (Daily Activity) */}
+            <a
+              href="https://bess-outreach-4kjkcvvhv-saikatkoley2000s-projects.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-xs border border-emerald-300 transition-colors shadow-sm"
+              title="Open Daily Activity & Outreach Tracker (Main App)"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden md:inline">Main App: Daily Activity</span>
+              <span className="md:hidden">Main App</span>
+            </a>
+
             {/* Excel Export Dropdown */}
             <div className="relative">
               <button
