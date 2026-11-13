@@ -8,6 +8,7 @@ const STORAGE_KEYS = {
   ACCOUNT_OVERRIDES: 'savita_account_overrides_2026',
   OPPORTUNITY_OVERRIDES: 'savita_opportunity_overrides_2026',
   DELETED_OPPS: 'savita_deleted_opps_2026',
+  DELETED_ACCOUNTS: 'savita_deleted_accounts_2026',
   NEW_OPPORTUNITIES: 'savita_new_opps_2026',
   ACTION_OVERRIDES: 'savita_action_overrides_2026',
   ENGAGEMENT_OVERRIDES: 'savita_engagement_overrides_2026',
@@ -75,6 +76,19 @@ export function AppProvider({ children }) {
       return [];
     }
   });
+
+  const [deletedAccountIds, setDeletedAccountIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DELETED_ACCOUNTS);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.DELETED_ACCOUNTS, JSON.stringify(deletedAccountIds));
+  }, [deletedAccountIds]);
 
   const [newOpportunities, setNewOpportunities] = useState(() => {
     try {
@@ -153,9 +167,12 @@ export function AppProvider({ children }) {
     localStorage.setItem(STORAGE_KEYS.ENGAGEMENT_OVERRIDES, JSON.stringify(engagementOverrides));
   }, [engagementOverrides]);
 
-  // Merge Master Accounts with user overrides
+  // Merge Master Accounts with user overrides and exclude transferred/deleted
   const accounts = useMemo(() => {
-    return rawMasterData.Accounts.map(acc => {
+    const deletedAccSet = new Set(deletedAccountIds);
+    return rawMasterData.Accounts
+      .filter(acc => !deletedAccSet.has(acc.account_id))
+      .map(acc => {
       const override = accountOverrides[acc.account_id] || {};
       
       const priority = override.priority !== undefined ? override.priority : acc.priority;
@@ -184,7 +201,7 @@ export function AppProvider({ children }) {
         followup_due_date_edit: override.followup_due_date_edit !== undefined ? override.followup_due_date_edit : (acc.followup_due_date_edit || '')
       };
     });
-  }, [accountOverrides]);
+  }, [accountOverrides, deletedAccountIds]);
 
   // Merge Master Opportunities with user overrides, dynamic formula calculation, deleted rows and custom added rows
   const opportunities = useMemo(() => {
@@ -604,12 +621,27 @@ export function AppProvider({ children }) {
     setCurrentUser(defaultUser);
   };
 
+  // Remove an account (used when transferring account to Main App)
+  const removeAccount = (accountId) => {
+    setDeletedAccountIds(prev => (prev.includes(accountId) ? prev : [...prev, accountId]));
+    const oppsToDelete = rawMasterData.Opportunities
+      .filter(o => o.account_id === accountId)
+      .map(o => o.opportunity_id);
+    if (oppsToDelete.length > 0) {
+      setDeletedOppIds(prev => Array.from(new Set([...prev, ...oppsToDelete])));
+    }
+    if (selectedAccountId === accountId) {
+      setSelectedAccountId(null);
+    }
+  };
+
   // Reset all local storage changes back to blank workbook defaults
   const resetAllToWorkbookDefaults = () => {
     if (window.confirm('Reset all edited owners, due dates, scenario inputs and status updates back to original Excel defaults?')) {
       setAccountOverrides({});
       setOpportunityOverrides({});
       setDeletedOppIds([]);
+      setDeletedAccountIds([]);
       setNewOpportunities([]);
       setActionOverrides({});
       setNewActions([]);
@@ -617,6 +649,7 @@ export function AppProvider({ children }) {
       localStorage.removeItem(STORAGE_KEYS.ACCOUNT_OVERRIDES);
       localStorage.removeItem(STORAGE_KEYS.OPPORTUNITY_OVERRIDES);
       localStorage.removeItem(STORAGE_KEYS.DELETED_OPPS);
+      localStorage.removeItem(STORAGE_KEYS.DELETED_ACCOUNTS);
       localStorage.removeItem(STORAGE_KEYS.NEW_OPPORTUNITIES);
       localStorage.removeItem(STORAGE_KEYS.ACTION_OVERRIDES);
       localStorage.removeItem(STORAGE_KEYS.NEW_ACTIONS);
@@ -651,6 +684,8 @@ export function AppProvider({ children }) {
         dashboardSheet: rawMasterData.Dashboard,
         appFields: rawMasterData.App_Fields,
         updateAccount,
+        removeAccount,
+        deletedAccountIds,
         updateOpportunity,
         deleteOpportunity,
         addOpportunity,

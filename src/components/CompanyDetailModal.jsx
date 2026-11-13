@@ -25,10 +25,13 @@ import {
   Sparkles,
   ChevronRight,
   Plus,
-  Trash2
+  Trash2,
+  Send,
+  Loader2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getCompanyWebsiteUrl, getCompanyDisplayDomain } from '../utils/companyUtils';
+import { transferAccountToMainApp, MAIN_APP_BASE_URL } from '../utils/transferToMainApp';
 
 export default function CompanyDetailModal() {
   const {
@@ -37,6 +40,7 @@ export default function CompanyDetailModal() {
     modalInitialEditMode,
     getAccount360,
     updateAccount,
+    removeAccount,
     updateOpportunity,
     deleteOpportunity,
     addOpportunity,
@@ -48,6 +52,33 @@ export default function CompanyDetailModal() {
   const [formData, setFormData] = useState({});
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [isTransferring, setIsTransferring] = useState(false);
+
+  const handleTransferFromModal = async () => {
+    if (!data || !data.account) return;
+    const compName = formData.company_name || data.account.company_name;
+    const confirmTransfer = window.confirm(
+      `Transfer "${compName}" to Main App (Daily Operations)?\n\n` +
+      `• If already in Main App, filled data will be updated without duplicating.\n` +
+      `• This account will then be removed from this Supporting App directory.`
+    );
+    if (!confirmTransfer) return;
+
+    setIsTransferring(true);
+    try {
+      const mergedAcc = { ...data.account, ...formData };
+      await transferAccountToMainApp(mergedAcc);
+      removeAccount(data.account.account_id);
+      setSelectedAccountId(null);
+      alert(`Successfully transferred "${compName}" to Main App and removed from Supporting App!`);
+      window.open(`${MAIN_APP_BASE_URL}/?search=${encodeURIComponent(compName)}`, '_blank');
+    } catch (err) {
+      console.error('Transfer error:', err);
+      alert(`Transfer failed: ${err.message}`);
+    } finally {
+      setIsTransferring(false);
+    }
+  };
 
   // Sync initial edit mode when opening
   useEffect(() => {
@@ -1249,6 +1280,19 @@ export default function CompanyDetailModal() {
         <div className="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 shrink-0">
           <span className="font-bold text-slate-800">{formData.company_name || account.company_name}</span>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleTransferFromModal}
+              disabled={isTransferring}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+              title="Transfer this account to Main App & remove from Supporting App"
+            >
+              {isTransferring ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5 text-purple-200" />
+              )}
+              <span>Transfer to Main App &amp; Remove</span>
+            </button>
             {!isEditingAll && (
               <button
                 onClick={() => setIsEditingAll(true)}

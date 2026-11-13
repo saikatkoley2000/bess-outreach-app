@@ -17,19 +17,59 @@ import {
   SlidersHorizontal,
   Download,
   Edit3,
-  Sparkles
+  Sparkles,
+  Send,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { exportAccountsToExcel } from '../utils/exportToExcel';
 import { getCompanyWebsiteUrl, getCompanyDisplayDomain } from '../utils/companyUtils';
+import { transferAccountToMainApp, MAIN_APP_BASE_URL } from '../utils/transferToMainApp';
 
 export default function CompanyDirectory() {
   const {
     accounts,
     updateAccount,
+    removeAccount,
     setSelectedAccountId,
     openAccountDetail
   } = useApp();
+
+  const [transferringId, setTransferringId] = useState(null);
+  const [transferToast, setTransferToast] = useState(null);
+
+  const handleTransferToMainApp = async (acc, e) => {
+    if (e) e.stopPropagation();
+    
+    const confirmTransfer = window.confirm(
+      `Transfer "${acc.company_name}" to Main App (Daily Operations)?\n\n` +
+      `• If already in Main App, filled data will be updated without duplicating.\n` +
+      `• This account will then be removed from this Supporting App directory.`
+    );
+    if (!confirmTransfer) return;
+
+    setTransferringId(acc.account_id);
+    try {
+      await transferAccountToMainApp(acc);
+      removeAccount(acc.account_id);
+      
+      setTransferToast({
+        type: 'success',
+        company: acc.company_name,
+        message: `Transferred "${acc.company_name}" to Main App! Removed from Supporting App.`,
+        url: `${MAIN_APP_BASE_URL}/?search=${encodeURIComponent(acc.company_name)}`
+      });
+      setTimeout(() => {
+        setTransferToast(prev => (prev?.company === acc.company_name ? null : prev));
+      }, 9000);
+    } catch (err) {
+      console.error('Transfer failed:', err);
+      alert(`Transfer failed: ${err.message}`);
+    } finally {
+      setTransferringId(null);
+    }
+  };
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBucket, setSelectedBucket] = useState('ALL');
@@ -239,6 +279,38 @@ export default function CompanyDirectory() {
 
   return (
     <div className="space-y-5">
+      {/* Transfer Notification Toast Banner */}
+      {transferToast && (
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-700 text-white p-3.5 rounded-2xl shadow-lg border border-emerald-400/50 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top duration-200">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-emerald-200" />
+            </div>
+            <div>
+              <p className="font-bold text-xs sm:text-sm">{transferToast.message}</p>
+              <p className="text-[11px] text-emerald-100">
+                Data was merged with existing Main App records (no duplicates) and removed from this directory.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <a
+              href={transferToast.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-xl bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs shadow transition-all flex items-center gap-1 cursor-pointer"
+            >
+              <span>Open in Main App ↗</span>
+            </a>
+            <button
+              onClick={() => setTransferToast(null)}
+              className="p-1 rounded-lg hover:bg-white/20 text-white/80 hover:text-white cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Search & Multi-Filters Toolbar */}
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -501,7 +573,7 @@ export default function CompanyDirectory() {
                     Follow-up {sortBy === 'FOLLOWUP_ASC' && <span className="text-[#007A3D]">▲</span>}
                   </span>
                 </th>
-                <th className="py-2.5 px-1.5 text-right w-16">Actions</th>
+                <th className="py-2.5 px-2 text-right min-w-[155px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -740,18 +812,32 @@ export default function CompanyDirectory() {
                     </td>
 
                     {/* Actions */}
-                    <td className="py-2 px-1.5 text-right w-16">
-                      <div className="flex items-center justify-end gap-1">
+                    <td className="py-2 px-2 text-right min-w-[155px]">
+                      <div className="flex items-center justify-end gap-1.5 flex-nowrap">
+                        <button
+                          type="button"
+                          disabled={transferringId === acc.account_id}
+                          onClick={(e) => handleTransferToMainApp(acc, e)}
+                          className="px-2 py-0.5 rounded bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold text-[9px] transition-all cursor-pointer shadow-xs flex items-center gap-1 disabled:opacity-50 shrink-0"
+                          title={`Transfer ${acc.company_name} to Main App (Daily Operations) & remove from Supporting App`}
+                        >
+                          {transferringId === acc.account_id ? (
+                            <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                          ) : (
+                            <Send className="w-2.5 h-2.5 text-purple-200" />
+                          )}
+                          <span>To Main ↗</span>
+                        </button>
                         <button
                           onClick={() => openAccountDetail(acc.account_id, false)}
-                          className="px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-[#007A3D] text-[#007A3D] hover:text-white font-black text-[9px] transition-colors cursor-pointer"
+                          className="px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-[#007A3D] text-[#007A3D] hover:text-white font-black text-[9px] transition-colors cursor-pointer shrink-0"
                           title="Open 360° linked profile"
                         >
                           360°
                         </button>
                         <button
                           onClick={() => openAccountDetail(acc.account_id, true)}
-                          className="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+                          className="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer shrink-0"
                           title="Edit all fields of this company"
                         >
                           <Edit3 className="w-2.5 h-2.5 text-slate-500" />
